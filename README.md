@@ -1,2 +1,3 @@
 # projeto-estoque
-Projeto WEB de um estoque para a cadeira APS
+
+Trabalho da disciplina Inteligencia artificial do curso Ciências da computação 7º semestre do IFCE Maracanaú
