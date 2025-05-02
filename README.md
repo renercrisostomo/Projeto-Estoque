@@ -1,4 +1,4 @@
-# Projeto Estoque
+# Projeto-Estoque
 
 Trabalho da disciplina APS do curso Ciências da Computação 7º semestre do IFCE Maracanaú.
 
