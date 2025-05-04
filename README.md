@@ -18,6 +18,6 @@ bun dev
 
 Abra [http://localhost:3000/auth/login](http://localhost:3000/auth/login) no seu navegador para ver o resultado.
 
-Você pode começar a editar a página modificando o arquivo `app/auth/login.tsx`. A página será atualizada automaticamente conforme você edita o arquivo.
+Você pode começar a editar a página modificando o arquivo `app/auth/login/page.tsx`. A página será atualizada automaticamente conforme você edita o arquivo.
 
 ![login page printscreen](public/login-page-printscreen.png)
