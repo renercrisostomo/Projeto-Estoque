@@ -10,7 +10,7 @@ const { Title } = Typography;
 export default function LoginPage({}) {
 
   const onFinish = (values: Record<string, unknown>) => {
-    console.log('Received values of form: ', values);
+    console.log('Valores recebidos do formulário: ', values);
   };
 
   return (
@@ -26,30 +26,30 @@ export default function LoginPage({}) {
       >
         <Form.Item
           name="username"
-          rules={[{ required: true, message: 'Please input your Username!' }]}
+          rules={[{ required: true, message: 'Por favor, insira seu nome de usuário!' }]}
         >
-          <Input prefix={<UserOutlined />} placeholder="Username" />
+          <Input prefix={<UserOutlined />} placeholder="Nome de usuário" />
         </Form.Item>
         <Form.Item
           name="password"
-          rules={[{ required: true, message: 'Please input your Password!' }]}
+          rules={[{ required: true, message: 'Por favor, insira sua senha!' }]}
         >
-          <Input prefix={<LockOutlined />} type="password" placeholder="Password" />
+          <Input prefix={<LockOutlined />} type="password" placeholder="Senha" />
         </Form.Item>
         <Form.Item>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Form.Item name="remember" valuePropName="checked" noStyle>
-              <Checkbox>Remember me</Checkbox>
+              <Checkbox>Lembrar-me</Checkbox>
             </Form.Item>
-            <Link href="/auth/forgot-password">Forgot password</Link>
+            <Link href="/auth/forgot-password">Esqueceu a senha?</Link>
           </div>
         </Form.Item>
 
         <Form.Item>
           <Button block type="primary" htmlType="submit">
-            Log in
+            Entrar
           </Button>
-          or <Link href="/auth/register">Register now!</Link>
+          ou <Link href="/auth/register">Cadastre-se agora!</Link>
         </Form.Item>
       </Form>
     </>
