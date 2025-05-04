@@ -1,39 +1,57 @@
+"use client";
+
+import React from 'react';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Checkbox, Form, Input, Typography } from 'antd';
+import Link from 'next/link';
+
+const { Title } = Typography;
+
 export default function LoginPage({}) {
+
+  const onFinish = (values: Record<string, unknown>) => {
+    console.log('Received values of form: ', values);
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-sm p-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-center">Login</h1>
-        <form className="mt-4">
-          <div className="mb-4">
-            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-500"
-              required
-            />
+    <>
+      <Title level={2} style={{ textAlign: 'center', marginBottom: '20px' }}>
+        Login
+      </Title>
+      <Form
+        name="login"
+        initialValues={{ remember: true }}
+        style={{ maxWidth: 360 }}
+        onFinish={onFinish}
+      >
+        <Form.Item
+          name="username"
+          rules={[{ required: true, message: 'Please input your Username!' }]}
+        >
+          <Input prefix={<UserOutlined />} placeholder="Username" />
+        </Form.Item>
+        <Form.Item
+          name="password"
+          rules={[{ required: true, message: 'Please input your Password!' }]}
+        >
+          <Input prefix={<LockOutlined />} type="password" placeholder="Password" />
+        </Form.Item>
+        <Form.Item>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Form.Item name="remember" valuePropName="checked" noStyle>
+              <Checkbox>Remember me</Checkbox>
+            </Form.Item>
+            <Link href="/auth/forgot-password">Forgot password</Link>
           </div>
-          <div className="mb-4">
-            <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-500"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-500"
-          >
-            Login
-          </button>
-        </form>
-      </div>
-    </div>
+        </Form.Item>
+
+        <Form.Item>
+          <Button block type="primary" htmlType="submit">
+            Log in
+          </Button>
+          or <Link href="/auth/register">Register now!</Link>
+        </Form.Item>
+      </Form>
+    </>
   );
 }
