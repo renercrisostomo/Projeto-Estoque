@@ -19,3 +19,5 @@ bun dev
 Abra [http://localhost:3000](http://localhost:3000) no seu navegador para ver o resultado.
 
 Você pode começar a editar a página modificando o arquivo `app/page.tsx`. A página será atualizada automaticamente conforme você edita o arquivo.
+
+![login page printscreen](public/login-page-printscreen.png)
