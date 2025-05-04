@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Roboto, Roboto_Mono } from "next/font/google";
+import { ConfigProvider } from 'antd';
 import "./globals.css";
+import theme from '@/config/theme';
+import ptBR from 'antd/locale/pt_BR';
+import 'dayjs/locale/pt-br';
 
 const robotoSans = Roboto({
   variable: "--font-roboto-sans",
@@ -32,7 +36,9 @@ export default function RootLayout({
       <body
         className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}
       >
-        {children}
+        <ConfigProvider locale={ptBR} theme={theme}>
+          {children}
+        </ConfigProvider>
       </body>
     </html>
   );

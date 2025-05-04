@@ -16,7 +16,7 @@ export default function RegisterPage({}) {
   return (
     <>
       <Title level={2} style={{ textAlign: 'center', marginBottom: '20px' }}>
-        Registrar
+        Cadastre-se
       </Title>
       <Form
         name="register"
@@ -65,7 +65,7 @@ export default function RegisterPage({}) {
 
         <Form.Item>
           <Button block type="primary" htmlType="submit">
-            Registrar
+            Cadastrar
           </Button>
           Ou <Link href="/auth/login">Faça login agora!</Link>
         </Form.Item>
