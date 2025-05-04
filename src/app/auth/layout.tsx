@@ -7,10 +7,10 @@ export default function AuthLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-50">
       <div className="flex flex-1">
-        <div className="flex flex-col justify-center w-full max-w-md p-8 bg-white shadow-lg">
-          <div className="mb-6 flex justify-center">
+        <div className="flex flex-col justify-center w-full max-w-md p-8 bg-white shadow-xl rounded-lg mx-auto lg:mx-0 lg:rounded-none lg:shadow-none">
+          <div className="mb-8 flex justify-center">
             <Image
               src="/estoque-logo.png"
               alt="Estoque Logo"
@@ -19,16 +19,26 @@ export default function AuthLayout({
               priority
             />
           </div>
-          {children}
+          <div className="space-y-6">{children}</div>
         </div>
+
         <div
-          className="hidden lg:flex flex-1 items-center justify-center"
+          className="hidden lg:flex flex-1 items-center justify-center relative"
           style={{ backgroundColor: '#458ac9' }}
         >
           <div
-            className="bg-cover bg-center rounded-lg shadow-lg h-full w-full"
+            className="absolute inset-0 bg-cover bg-center filter brightness-75"
             style={{ backgroundImage: 'url("/background-estoque.webp")' }}
           />
+          <div className="relative z-10 text-white text-center px-12">
+            <h1 className="text-5xl font-extrabold mb-6 leading-tight">
+              Bem-vindo ao Estoque
+            </h1>
+            <p className="text-lg font-light">
+              Gerencie seus produtos de forma eficiente e prática. Simplifique
+              sua gestão com nossa plataforma.
+            </p>
+          </div>
         </div>
       </div>
     </div>
