@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react'; // Added useContext
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -11,9 +11,11 @@ import {
   AppstoreOutlined,
   ShopOutlined,
   SolutionOutlined,
+  LogoutOutlined, // Added LogoutOutlined
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
+import { Breadcrumb, Layout, Menu, theme } from 'antd'; // Removed Button
+import { AuthContext } from '@/contexts/AuthContext'; // Added AuthContext import
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -33,19 +35,6 @@ function getItem(
   } as MenuItem;
 }
 
-const items: MenuItem[] = [
-  getItem(<Link href="/dashboard">Visão Geral</Link>, '/dashboard', <PieChartOutlined />),
-  getItem('Cadastros', 'sub1', <AppstoreOutlined />, [
-    getItem(<Link href="/dashboard/produtos">Produtos</Link>, '/dashboard/produtos', <ShopOutlined />),
-    getItem(<Link href="/dashboard/fornecedores">Fornecedores</Link>, '/dashboard/fornecedores', <SolutionOutlined />),
-  ]),
-  getItem('Equipe', 'sub2', <TeamOutlined />, [
-    getItem('Membro 1', '6', <UserOutlined />),
-    getItem('Membro 2', '8', <UserOutlined />)
-  ]),
-  getItem('Arquivos', '9', <DesktopOutlined />),
-];
-
 export default function DashboardLayout({
   children,
 }: {
@@ -53,12 +42,34 @@ export default function DashboardLayout({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
+  const { signOut } = useContext(AuthContext); // Get signOut from context
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  const handleLogout = () => {
+    signOut();
+    // No need to redirect here, signOut in AuthContext should handle it
+  };
+
+  // Define menu items including the logout item
+  const menuItems: MenuItem[] = [
+    getItem(<Link href="/dashboard">Visão Geral</Link>, '/dashboard', <PieChartOutlined />),
+    getItem('Cadastros', 'sub1', <AppstoreOutlined />, [
+      getItem(<Link href="/dashboard/produtos">Produtos</Link>, '/dashboard/produtos', <ShopOutlined />),
+      getItem(<Link href="/dashboard/fornecedores">Fornecedores</Link>, '/dashboard/fornecedores', <SolutionOutlined />),
+    ]),
+    getItem('Equipe', 'sub2', <TeamOutlined />, [
+      getItem('Membro 1', '6', <UserOutlined />),
+      getItem('Membro 2', '8', <UserOutlined />)
+    ]),
+    getItem('Arquivos', '9', <DesktopOutlined />),
+    getItem('Sair', 'logout', <LogoutOutlined />, undefined), // Logout item
+  ];
+
+
   // Determinar chaves abertas e selecionadas com base no pathname
-  const defaultOpenKeys = items.reduce((acc, item) => {
+  const defaultOpenKeys = menuItems.reduce((acc, item) => { // Changed items to menuItems
     if (item && 'children' in item && item.children) {
       const childHasActivePath = item.children.some(child => child && child.key === pathname);
       if (childHasActivePath && item.key) {
@@ -67,6 +78,13 @@ export default function DashboardLayout({
     }
     return acc;
   }, [] as string[]);
+
+  const onMenuClick: MenuProps['onClick'] = (e) => {
+    if (e.key === 'logout') {
+      handleLogout();
+    }
+    // For other menu items, navigation is handled by Link components
+  };
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -81,7 +99,7 @@ export default function DashboardLayout({
             />
           </Link>
         </div>
-        <Menu theme="dark" defaultSelectedKeys={[pathname]} defaultOpenKeys={defaultOpenKeys} mode="inline" items={items} />
+        <Menu theme="dark" defaultSelectedKeys={[pathname]} defaultOpenKeys={defaultOpenKeys} mode="inline" items={menuItems} onClick={onMenuClick} /> 
       </Sider>
       <Layout>
         <Header style={{ padding: '0 16px', background: colorBgContainer }}>

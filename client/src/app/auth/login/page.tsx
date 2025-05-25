@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useContext, useState } from 'react'; // Added useState
+import React, { useContext, useState } from 'react';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Typography, message } from 'antd'; // Added message
+import { Button, Form, Input, Typography, notification } from 'antd'; // Changed message to notification
 import Link from 'next/link';
 import { AuthContext } from '../../../contexts/AuthContext';
-import axios from 'axios'; // Added axios for error checking
+import axios from 'axios';
 
 const { Title } = Typography;
 
@@ -17,10 +17,10 @@ interface SignInData {
 
 export default function LoginPage({}) {
   const { signIn } = useContext(AuthContext);
-  const [loading, setLoading] = useState(false); // Added loading state
+  const [loading, setLoading] = useState(false);
 
   const onFinish = async (values: SignInData) => {
-    setLoading(true); // Set loading to true
+    setLoading(true);
     try {
       console.log('Form values:', values);
       await signIn(values);
@@ -33,9 +33,12 @@ export default function LoginPage({}) {
       } else if (error instanceof Error) {
         errorMsg = error.message;
       }
-      message.error(errorMsg);
+      notification.error({ // Changed message.error to notification.error
+        message: 'Falha no Login',
+        description: errorMsg,
+      });
     } finally {
-      setLoading(false); // Set loading to false in finally block
+      setLoading(false);
     }
   };
 
@@ -62,14 +65,14 @@ export default function LoginPage({}) {
         >
           <Input prefix={<LockOutlined />} type="password" placeholder="Senha" />
         </Form.Item>
-        <Form.Item>
+        {/* <Form.Item>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            {/* <Form.Item name="remember" valuePropName="checked" noStyle>
+            <Form.Item name="remember" valuePropName="checked" noStyle>
               <Checkbox>Lembrar-me</Checkbox>
-            </Form.Item> */}
+            </Form.Item> 
             <Link href="/auth/forgot-password">Esqueceu a senha?</Link>
           </div>
-        </Form.Item>
+        </Form.Item> */}
 
         <Form.Item>
           <Button block type="primary" htmlType="submit" loading={loading}> {/* Added loading prop to Button */}

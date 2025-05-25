@@ -187,7 +187,7 @@ export default function FornecedoresPage() {
         open={isModalOpen}
         onCancel={() => {setIsModalOpen(false); form.resetFields();}}
         footer={null}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form<FornecedorFormData> form={form} layout="vertical" onFinish={onFinish} style={{marginTop: '20px'}}>
           <Form.Item

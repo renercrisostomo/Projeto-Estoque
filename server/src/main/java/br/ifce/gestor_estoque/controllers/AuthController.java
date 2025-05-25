@@ -2,11 +2,13 @@ package br.ifce.gestor_estoque.controllers;
 
 import br.ifce.gestor_estoque.domain.user.User;
 import br.ifce.gestor_estoque.dto.LoginRequestDTO;
+import br.ifce.gestor_estoque.dto.MessageDTO; // Import MessageDTO
 import br.ifce.gestor_estoque.dto.RegisterRequestDTO;
 import br.ifce.gestor_estoque.dto.ResponseDTO;
 import br.ifce.gestor_estoque.infra.security.TokenService;
 import br.ifce.gestor_estoque.repositores.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus; // Import HttpStatus
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,21 +27,27 @@ public class AuthController {
     private final TokenService tokenService;
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseDTO> login(@RequestBody LoginRequestDTO body){
-        User user = this.userRepository.findByEmail(body.email()).orElseThrow(() -> new RuntimeException("User not found"));
-        if(passwordEncoder.matches(body.password(), user.getPassword())) {
-            String token = this.tokenService.generateToken(user);
-            return ResponseEntity.ok(new ResponseDTO(user.getName(), token));
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO body){
+        Optional<User> userOptional = this.userRepository.findByEmail(body.email());
+
+        if(userOptional.isPresent()){
+            User user = userOptional.get();
+            if(passwordEncoder.matches(body.password(), user.getPassword())) {
+                String token = this.tokenService.generateToken(user);
+                return ResponseEntity.ok(new ResponseDTO(user.getName(), user.getEmail(), token));
+            }
         }
-        return ResponseEntity.badRequest().build();
+        // Retorna uma mensagem genérica para usuário não encontrado ou senha inválida
+        // e o status HTTP 401 Unauthorized em ambos os casos.
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageDTO("Usuário e/ou senha inválidos."));
     }
 
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseDTO> register(@RequestBody RegisterRequestDTO body){
-        Optional<User> user = this.userRepository.findByEmail(body.email());
+    public ResponseEntity<?> register(@RequestBody RegisterRequestDTO body){ // Changed ResponseEntity<ResponseDTO> to ResponseEntity<?>
+        Optional<User> userOptional = this.userRepository.findByEmail(body.email());
 
-        if(user.isEmpty()) {
+        if(userOptional.isEmpty()) {
             User newUser = new User();
             newUser.setPassword(passwordEncoder.encode(body.password()));
             newUser.setEmail(body.email());
@@ -47,8 +55,9 @@ public class AuthController {
             this.userRepository.save(newUser);
 
             String token = this.tokenService.generateToken(newUser);
-            return ResponseEntity.ok(new ResponseDTO(newUser.getName(), token));
+            // It's common to return the created user's info (or just a success message) upon registration
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseDTO(newUser.getName(), newUser.getEmail(), token)); // Added email to ResponseDTO
         }
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new MessageDTO("E-mail já cadastrado."));
     }
 }

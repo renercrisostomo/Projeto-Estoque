@@ -1,4 +1,5 @@
 import { api } from './api';
+import axios from 'axios'; // Ensure axios is imported for the type guard
 
 // Types for backend interaction
 export interface LoginRequest {
@@ -18,24 +19,60 @@ export interface AuthResponse {
   email: string; // Added email field
 }
 
-// Simulate API delay if you want to keep it for testing loading states
-// const delay = (amount = 750) => new Promise(resolve => setTimeout(resolve, amount));
-
-export async function signInRequest(data: LoginRequest): Promise<AuthResponse> {
-  // await delay(); // Remove or keep delay for testing UI loading states
-  // console.log("signInRequest data:", data);
-  const response = await api.post<AuthResponse>('/auth/login', data);
-  // console.log("signInRequest response:", response.data);
-  return response.data; // Backend directly returns AuthResponse structure
+export interface MessageDTO {
+  message: string;
 }
 
-export async function registerRequest(data: RegisterRequest): Promise<AuthResponse> {
-  // await delay(); // Remove or keep delay for testing UI loading states
-  // console.log("registerRequest data:", data);
-  const response = await api.post<AuthResponse>('/auth/register', data);
-  // console.log("registerRequest response:", response.data);
-  return response.data;
-}
+export const signInRequest = async (data: LoginRequest): Promise<AuthResponse> => {
+  try {
+    const response = await api.post<AuthResponse>('/auth/login', data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      // Attempt to get the specific message from backend (MessageDTO)
+      if (error.response && error.response.data && typeof error.response.data.message === 'string') {
+        throw new Error(error.response.data.message);
+      }
+      // If no specific MessageDTO, use Axios's own error message (e.g., "Request failed with status code 401")
+      // This is often more informative than a generic "unexpected error".
+      if (error.message) {
+        throw new Error(error.message);
+      }
+    } else if (error instanceof Error) {
+      // For non-Axios errors that are still Error instances
+      if (error.message) {
+        throw new Error(error.message);
+      }
+    }
+    // Absolute fallback if no other message could be derived
+    throw new Error('Ocorreu um erro inesperado ao tentar fazer login.');
+  }
+};
+
+export const registerRequest = async (data: RegisterRequest): Promise<AuthResponse> => {
+  try {
+    const response = await api.post<AuthResponse>('/auth/register', data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      // Attempt to get the specific message from backend (MessageDTO)
+      if (error.response && error.response.data && typeof error.response.data.message === 'string') {
+        throw new Error(error.response.data.message);
+      }
+      // If no specific MessageDTO, use Axios's own error message
+      if (error.message) {
+        throw new Error(error.message);
+      }
+    } else if (error instanceof Error) {
+      // For non-Axios errors that are still Error instances
+      if (error.message) {
+        throw new Error(error.message);
+      }
+    }
+    // Absolute fallback if no other message could be derived
+    throw new Error('Ocorreu um erro inesperado ao tentar realizar o cadastro.');
+  }
+};
 
 // This function might be used to validate a token and get user info
 // if you have a /auth/me or /auth/profile endpoint

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useContext, useState } from 'react'; // Added useState
+import React, { useContext, useState } from 'react';
 import { LockOutlined, UserOutlined, MailOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Typography, message } from 'antd';
+import { Button, Form, Input, Typography, notification } from 'antd'; // Changed message to notification
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AuthContext } from '@/contexts/AuthContext';
@@ -15,13 +15,16 @@ export default function RegisterPage() {
   const { signUp } = useContext(AuthContext);
   const router = useRouter();
   const [form] = Form.useForm<RegisterRequest>();
-  const [loading, setLoading] = useState(false); // Added loading state
+  const [loading, setLoading] = useState(false);
 
   const onFinish = async (values: RegisterRequest) => {
-    setLoading(true); // Set loading to true
+    setLoading(true);
     try {
       await signUp(values);
-      message.success('Cadastro realizado com sucesso! Você será redirecionado para o login.');
+      notification.success({ // Changed message.success to notification.success
+        message: 'Cadastro Realizado',
+        description: 'Cadastro realizado com sucesso! Você será redirecionado para o login.',
+      });
       setTimeout(() => {
         router.push('/auth/login');
       }, 2000);
@@ -33,9 +36,12 @@ export default function RegisterPage() {
       } else if (error instanceof Error) {
         errorMsg = error.message;
       }
-      message.error(errorMsg);
+      notification.error({ // Changed message.error to notification.error
+        message: 'Falha no Cadastro',
+        description: errorMsg,
+      });
     } finally {
-      setLoading(false); // Set loading to false in finally block
+      setLoading(false);
     }
   };
 
@@ -54,14 +60,12 @@ export default function RegisterPage() {
       >
         <Form.Item
           name="name"
-          label="Nome Completo"
           rules={[{ required: true, message: 'Por favor, insira seu nome completo!', whitespace: true }]}
         >
           <Input prefix={<UserOutlined />} placeholder="Nome Completo" />
         </Form.Item>
         <Form.Item
           name="email"
-          label="E-mail"
           rules={[
             { required: true, message: 'Por favor, insira seu E-mail!' },
             { type: 'email', message: 'O formato do E-mail é inválido!' },
@@ -71,7 +75,6 @@ export default function RegisterPage() {
         </Form.Item>
         <Form.Item
           name="password"
-          label="Senha"
           rules={[{ required: true, message: 'Por favor, insira sua Senha!' }]}
           hasFeedback
         >
@@ -79,7 +82,6 @@ export default function RegisterPage() {
         </Form.Item>
         <Form.Item
           name="confirmPassword" // Added name prop here
-          label="Confirmar Senha"
           dependencies={['password']}
           hasFeedback
           rules={[
