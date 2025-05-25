@@ -1,0 +1,12 @@
+package br.ifce.gestor_estoque.repositores;
+
+import br.ifce.gestor_estoque.domain.estoque.Fornecedor;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface FornecedorRepository extends JpaRepository<Fornecedor, Long> {
+    // Spring Data JPA will automatically provide methods like findAll(), findById(), save(), deleteById(), etc.
+    // You can add custom query methods here if needed, for example:
+    // Fornecedor findByNome(String nome);
+}
