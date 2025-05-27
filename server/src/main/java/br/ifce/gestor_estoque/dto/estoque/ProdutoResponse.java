@@ -11,8 +11,6 @@ public class ProdutoResponse {
     public BigDecimal preco;
     public Integer quantidadeEstoque;
     public String unidadeMedida;
-    public Long fornecedorId;
-    public String fornecedorNome;
 
     public ProdutoResponse(Produto produto) {
         this.id = produto.getId();
@@ -21,9 +19,5 @@ public class ProdutoResponse {
         this.preco = produto.getPreco();
         this.quantidadeEstoque = produto.getQuantidadeEstoque();
         this.unidadeMedida = produto.getUnidadeMedida();
-        if (produto.getFornecedor() != null) {
-            this.fornecedorId = produto.getFornecedor().getId();
-            this.fornecedorNome = produto.getFornecedor().getNome();
-        }
     }
 }

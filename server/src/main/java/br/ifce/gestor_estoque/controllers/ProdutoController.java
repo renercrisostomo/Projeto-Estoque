@@ -1,11 +1,9 @@
 package br.ifce.gestor_estoque.controllers;
 
-import br.ifce.gestor_estoque.domain.estoque.Fornecedor;
 import br.ifce.gestor_estoque.domain.estoque.Produto;
 import br.ifce.gestor_estoque.dto.MessageDTO; // Import MessageDTO
 import br.ifce.gestor_estoque.dto.estoque.ProdutoRequest;
 import br.ifce.gestor_estoque.dto.estoque.ProdutoResponse;
-import br.ifce.gestor_estoque.repositores.FornecedorRepository;
 import br.ifce.gestor_estoque.repositores.ProdutoRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +22,6 @@ public class ProdutoController {
 
     @Autowired
     ProdutoRepository produtoRepository;
-
-    @Autowired
-    FornecedorRepository fornecedorRepository;
 
     @GetMapping
     public ResponseEntity<List<ProdutoResponse>> listarTodos() {
@@ -51,23 +46,12 @@ public class ProdutoController {
     @PostMapping
     @Transactional // Add Transactional for operations involving multiple repository calls
     public ResponseEntity<?> createProduto(@Valid @RequestBody ProdutoRequest produtoRequest) {
-        Fornecedor fornecedor = null;
-        if (produtoRequest.fornecedorId != null) { // Direct access
-            Optional<Fornecedor> fornecedorOptional = fornecedorRepository.findById(produtoRequest.fornecedorId); // Direct access
-            if (fornecedorOptional.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new MessageDTO("Fornecedor com ID " + produtoRequest.fornecedorId + " não encontrado.")); // Direct access
-            }
-            fornecedor = fornecedorOptional.get();
-        }
-
         Produto produto = new Produto();
         produto.setNome(produtoRequest.nome); // Direct access
         produto.setDescricao(produtoRequest.descricao); // Direct access
         produto.setPreco(produtoRequest.preco); // Direct access
         produto.setQuantidadeEstoque(produtoRequest.quantidadeEstoque); // Direct access
         produto.setUnidadeMedida(produtoRequest.unidadeMedida); // Direct access
-        produto.setFornecedor(fornecedor); // Set Fornecedor (can be null if fornecedorId was null)
 
         Produto novoProduto = produtoRepository.save(produto);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ProdutoResponse(novoProduto));
@@ -82,22 +66,11 @@ public class ProdutoController {
         }
 
         Produto produto = produtoOptional.get();
-        Fornecedor fornecedor = null;
-        if (produtoRequest.fornecedorId != null) { // Direct access
-            Optional<Fornecedor> fornecedorOptional = fornecedorRepository.findById(produtoRequest.fornecedorId); // Direct access
-            if (fornecedorOptional.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new MessageDTO("Fornecedor com ID " + produtoRequest.fornecedorId + " não encontrado para atualização do produto.")); // Direct access
-            }
-            fornecedor = fornecedorOptional.get();
-        }
-
         produto.setNome(produtoRequest.nome); // Direct access
         produto.setDescricao(produtoRequest.descricao); // Direct access
         produto.setPreco(produtoRequest.preco); // Direct access
         produto.setQuantidadeEstoque(produtoRequest.quantidadeEstoque); // Direct access
         produto.setUnidadeMedida(produtoRequest.unidadeMedida); // Direct access
-        produto.setFornecedor(fornecedor);
 
         Produto produtoAtualizado = produtoRepository.save(produto);
         return ResponseEntity.ok(new ProdutoResponse(produtoAtualizado));

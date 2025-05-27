@@ -1,12 +1,9 @@
 package br.ifce.gestor_estoque.domain.estoque;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -38,15 +35,6 @@ public class Produto {
     @NotBlank(message = "A unidade de medida não pode estar em branco")
     @Size(max = 50, message = "A unidade de medida deve ter no máximo 50 caracteres")
     private String unidadeMedida;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fornecedor_id")
-    private Fornecedor fornecedor;
-    
-    // Campo para armazenar o nome do fornecedor, pode ser útil para DTOs de resposta.
-    // Não é persistido diretamente se o objeto Fornecedor está sendo mapeado.
-    // private String fornecedorNome;
-
 
     // Getters e Setters
     public Long getId() {
@@ -96,23 +84,4 @@ public class Produto {
     public void setUnidadeMedida(String unidadeMedida) {
         this.unidadeMedida = unidadeMedida;
     }
-
-    public Fornecedor getFornecedor() {
-        return fornecedor;
-    }
-
-    public void setFornecedor(Fornecedor fornecedor) {
-        this.fornecedor = fornecedor;
-    }
-
-    // public String getFornecedorNome() {
-    //     if (this.fornecedor != null) {
-    //         return this.fornecedor.getNome();
-    //     }
-    //     return fornecedorNome; // Retorna o valor armazenado se houver, ou null
-    // }
-
-    // public void setFornecedorNome(String fornecedorNome) {
-    //     this.fornecedorNome = fornecedorNome;
-    // }
 }

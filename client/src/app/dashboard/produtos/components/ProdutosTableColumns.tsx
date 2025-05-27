@@ -1,20 +1,18 @@
 import React from 'react';
-import { Button, Input, Space, Popconfirm, Tag } from 'antd';
+import { Button, Input, Space, Popconfirm } from 'antd';
 import { EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import type { TableProps } from 'antd';
-import { Produto, Fornecedor } from '@/types/entities';
+import { Produto } from '@/types/entities';
 
 type ProdutoComKey = Produto & { key: string };
 
 interface GetColumnsProps {
-  fornecedores: Fornecedor[];
   handleEdit: (record: ProdutoComKey) => void;
   handleDelete: (id: number) => void;
   clearGlobalSearch: () => void; // To clear the main search input from column filter
 }
 
 export const getProdutosTableColumns = ({
-  fornecedores,
   handleEdit,
   handleDelete,
   clearGlobalSearch,
@@ -78,17 +76,6 @@ export const getProdutosTableColumns = ({
     sorter: (a, b) => a.quantidadeEstoque - b.quantidadeEstoque,
   },
   { title: 'Unidade', dataIndex: 'unidadeMedida', key: 'unidadeMedida' },
-  {
-    title: 'Fornecedor',
-    dataIndex: 'fornecedorNome',
-    key: 'fornecedorNome',
-    render: (text, record) => {
-      const fornecedor = fornecedores.find(f => String(f.id) === String(record.fornecedorId));
-      return fornecedor?.nome || record.fornecedorNome || <Tag>N/A</Tag>;
-    },
-    filters: fornecedores.map(f => ({ text: f.nome, value: String(f.id) })),
-    onFilter: (value, record) => String(record.fornecedorId) === String(value),
-  },
   {
     title: 'Ações',
     key: 'actions',

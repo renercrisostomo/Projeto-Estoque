@@ -26,6 +26,4 @@ public class ProdutoRequest {
     @NotBlank(message = "A unidade de medida não pode estar em branco")
     @Size(max = 50, message = "A unidade de medida deve ter no máximo 50 caracteres")
     public String unidadeMedida;
-    
-    public Long fornecedorId; // ID do fornecedor associado
 }

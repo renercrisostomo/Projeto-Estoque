@@ -2,11 +2,10 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Form, Input, Select, Space, message, InputNumber } from 'antd'; // Added InputNumber, message. Removed Upload
+import { Form, Input, Select, Space, message, InputNumber } from 'antd'; 
 import axios from 'axios';
-import { ProdutoFormData, ProdutoComKey, Fornecedor } from '@/types/entities';
+import { ProdutoFormData, ProdutoComKey } from '@/types/entities'; 
 import { produtoService } from '@/services/produtoService';
-import { fornecedorService } from '@/services/fornecedorService';
 
 // Import generic components
 import { DashboardPageHeader } from '../components/DashboardPageHeader';
@@ -30,85 +29,62 @@ const unidadesDeMedida = [
 
 export default function ProdutosPage() {
   const [produtos, setProdutos] = useState<ProdutoComKey[]>([]);
-  const [fornecedores, setFornecedores] = useState<Fornecedor[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduto, setEditingProduto] = useState<ProdutoComKey | null>(null);
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
-  const [messageApi, contextHolder] = message.useMessage(); // Added
+  const [messageApi, contextHolder] = message.useMessage(); 
   
   const [form] = Form.useForm<ProdutoFormData>();
-
-  const fetchFornecedoresCallback = useCallback(async () => {
-    try {
-      const response = await fornecedorService.listarFornecedores();
-      // Ensure response is an array before mapping
-      const dataToMap = Array.isArray(response) ? response : [];
-      setFornecedores(dataToMap.map(f => ({ ...f, id: String(f.id) })));
-    } catch (error) {
-      console.error("Erro ao buscar fornecedores:", error);
-      messageApi.error('Falha ao carregar fornecedores. Verifique a conexão com o servidor.'); // Changed
-    }
-  }, [messageApi]); // Added messageApi dependency
 
   const fetchProdutos = useCallback(async () => {
     setLoading(true);
     try {
       const response = await produtoService.listarProdutos();
-      // Ensure response is an array before mapping
       const dataToMap = Array.isArray(response) ? response : [];
-      const produtosComFornecedorNome = dataToMap.map(p => ({
+      const produtosComKey = dataToMap.map(p => ({
         ...p,
         key: String(p.id),
-        fornecedorNome: fornecedores.find(f => String(f.id) === String(p.fornecedorId))?.nome || p.fornecedorNome || 'N/A',
       }));
-      setProdutos(produtosComFornecedorNome);
+      setProdutos(produtosComKey);
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
-      messageApi.error('Falha ao carregar produtos. Tente novamente.'); // Changed
+      messageApi.error('Falha ao carregar produtos. Tente novamente.');
     } finally {
       setLoading(false);
     }
-  }, [fornecedores, messageApi]); // Added messageApi dependency
+  }, [messageApi]);
 
   useEffect(() => {
-    fetchFornecedoresCallback();
-  }, [fetchFornecedoresCallback]);
-
-  useEffect(() => {
-    if (fornecedores.length > 0) {
-      fetchProdutos();
-    }
-  }, [fornecedores, fetchProdutos]);
+    fetchProdutos(); // Fetch products directly
+  }, [fetchProdutos]);
 
   const handleAdd = useCallback(() => {
-    // form.resetFields(); // Removed
     setEditingProduto(null);
     setIsModalOpen(true);
-  }, [setEditingProduto, setIsModalOpen]);
+  }, []);
 
   const handleEdit = useCallback((record: ProdutoComKey) => {
-    form.setFieldsValue(record);
+    form.setFieldsValue(record); // record no longer has fornecedorId
     setEditingProduto(record);
     setIsModalOpen(true);
-  }, [form, setEditingProduto, setIsModalOpen]);
+  }, [form]);
 
   const handleModalCancel = useCallback(() => {
     setIsModalOpen(false);
-    // form.resetFields(); // Removed
-    setEditingProduto(null); // Ensure editing state is also cleared on cancel
-  }, [setIsModalOpen, setEditingProduto]);
+    setEditingProduto(null); 
+  }, []);
 
   const handleDelete = useCallback(async (id: number) => {
     try {
       await produtoService.deletarProduto(String(id));
-      messageApi.success('Produto excluído com sucesso!'); // Changed
+      messageApi.success('Produto excluído com sucesso!');
       await fetchProdutos();
     } catch (error) {
       console.error("Erro ao excluir produto:", error);
-      messageApi.error('Falha ao excluir produto. Tente novamente.'); // Changed
+      messageApi.error('Falha ao excluir produto. Tente novamente.');
     } 
-  }, [fetchProdutos, messageApi]); // Added messageApi dependency
+  }, [fetchProdutos, messageApi]);
 
   const onFinishModal = useCallback(async (values: ProdutoFormData): Promise<void> => {
     setLoading(true);
@@ -116,19 +92,17 @@ export default function ProdutosPage() {
       ...values,
       preco: Number(values.preco),
       quantidadeEstoque: Number(values.quantidadeEstoque),
-      fornecedorId: values.fornecedorId ? String(values.fornecedorId) : undefined,
     };
 
     try {
       if (editingProduto) {
         await produtoService.atualizarProduto(String(editingProduto.id), payload);
-        messageApi.success('Produto atualizado com sucesso!'); // Changed
+        messageApi.success('Produto atualizado com sucesso!');
       } else {
         await produtoService.criarProduto(payload);
-        messageApi.success('Produto adicionado com sucesso!'); // Changed
+        messageApi.success('Produto adicionado com sucesso!');
       }
       setIsModalOpen(false);
-      // form.resetFields(); // Removed
       await fetchProdutos();
     } catch (error) {
       console.error("Erro ao salvar produto:", error);
@@ -138,18 +112,17 @@ export default function ProdutosPage() {
       } else if (error instanceof Error) {
         errorMsg = error.message;
       }
-      messageApi.error(errorMsg); // Changed
+      messageApi.error(errorMsg);
     } finally {
       setLoading(false);
     }
-  }, [editingProduto, fetchProdutos, setIsModalOpen, setLoading, messageApi]); // Added messageApi dependency
+  }, [editingProduto, fetchProdutos, messageApi]);
 
   const clearGlobalSearch = useCallback(() => {
     setSearchText('');
-  }, [setSearchText]);
+  }, []);
 
   const tableColumns = useMemo(() => getProdutosTableColumns({
-    fornecedores: [], // Pass an empty array or fetch actual fornecedores if needed by columns
     handleEdit,
     handleDelete,
     clearGlobalSearch,
@@ -207,13 +180,6 @@ export default function ProdutosPage() {
           </Select>
         </Form.Item>
       </Space>
-      <Form.Item name="fornecedorId" label="Fornecedor">
-        <Select placeholder="Selecione um fornecedor (opcional)" allowClear>
-          {fornecedores.map(f => (
-            <Option key={String(f.id)} value={String(f.id)}>{f.nome}</Option>
-          ))}
-        </Select>
-      </Form.Item>
     </>
   );
 

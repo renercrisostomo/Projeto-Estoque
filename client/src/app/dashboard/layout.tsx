@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useContext } from 'react'; // Added useContext
+import React, { useState, useContext } from 'react'; // Ensured useContext is imported
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -11,11 +11,13 @@ import {
   AppstoreOutlined,
   ShopOutlined,
   SolutionOutlined,
-  LogoutOutlined, // Added LogoutOutlined
+  LogoutOutlined,
+  ArrowDownOutlined, // Added for Entradas
+  ArrowUpOutlined,   // Added for Saidas
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu, theme } from 'antd'; // Removed Button
-import { AuthContext } from '@/contexts/AuthContext'; // Added AuthContext import
+import { Breadcrumb, Layout, Menu, theme } from 'antd'; // Ensured Layout, Menu, Breadcrumb, theme are imported
+import { AuthContext } from '@/contexts/AuthContext';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -58,6 +60,8 @@ export default function DashboardLayout({
     getItem('Cadastros', 'sub1', <AppstoreOutlined />, [
       getItem(<Link href="/dashboard/produtos">Produtos</Link>, '/dashboard/produtos', <ShopOutlined />),
       getItem(<Link href="/dashboard/fornecedores">Fornecedores</Link>, '/dashboard/fornecedores', <SolutionOutlined />),
+      getItem(<Link href="/dashboard/entradas">Entradas</Link>, '/dashboard/entradas', <ArrowDownOutlined />),
+      getItem(<Link href="/dashboard/saidas">Saídas</Link>, '/dashboard/saidas', <ArrowUpOutlined />),
     ]),
     getItem('Equipe', 'sub2', <TeamOutlined />, [
       getItem('Membro 1', '6', <UserOutlined />),
@@ -112,6 +116,8 @@ export default function DashboardLayout({
             <Breadcrumb.Item><Link href="/dashboard">Dashboard</Link></Breadcrumb.Item>
             {pathname.startsWith('/dashboard/produtos') && <Breadcrumb.Item><Link href="/dashboard/produtos">Produtos</Link></Breadcrumb.Item>}
             {pathname.startsWith('/dashboard/fornecedores') && <Breadcrumb.Item><Link href="/dashboard/fornecedores">Fornecedores</Link></Breadcrumb.Item>}
+            {pathname.startsWith('/dashboard/entradas') && <Breadcrumb.Item><Link href="/dashboard/entradas">Entradas</Link></Breadcrumb.Item>}
+            {pathname.startsWith('/dashboard/saidas') && <Breadcrumb.Item><Link href="/dashboard/saidas">Saídas</Link></Breadcrumb.Item>}
             {/* Adicionar mais conforme necessário */}
           </Breadcrumb>
           <div
