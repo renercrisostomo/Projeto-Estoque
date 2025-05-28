@@ -35,7 +35,23 @@ Antes de começar, certifique-se de ter o seguinte instalado:
    cd client
    ```
 
-2. Instale as dependências:
+2. Crie um arquivo de ambiente local. Copie o arquivo `.env.example` para um novo arquivo chamado `.env.local`:
+
+   ```bash
+   # No Windows (PowerShell)
+   Copy-Item .env.example .env.local
+   # No Linux/macOS
+   # cp .env.example .env.local
+   ```
+
+   Em seguida, edite o arquivo `.env.local` e configure a variável `NEXT_PUBLIC_API_URL` para apontar para o seu backend (normalmente `http://localhost:8080` se o backend estiver rodando localmente na porta padrão).
+
+   ```plaintext
+   # client/.env.local
+   NEXT_PUBLIC_API_URL=http://localhost:8080
+   ```
+
+3. Instale as dependências:
 
    ```bash
    npm install
