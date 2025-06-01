@@ -26,9 +26,7 @@ Antes de começar, certifique-se de ter o seguinte instalado:
    cd server
    ```
 
-2. (Opcional, mas recomendado) Configure as propriedades do banco de dados em `src/main/resources/application.properties` se não for usar o H2 em memória.
-
-3. Crie um arquivo `.env` na raiz do diretório `server` com as seguintes variáveis de ambiente:
+2. Crie um arquivo `.env` na raiz do diretório `server` com as seguintes variáveis de ambiente:
 
    ```env
    # Configurações do banco de dados
