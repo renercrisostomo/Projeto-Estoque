@@ -176,7 +176,7 @@ export default function SaidasPage() {
         label="Produto"
         rules={[{ required: true, message: 'Por favor, selecione o produto!' }]}
       >
-        <Select placeholder="Selecione um produto" allowClear showSearch optionFilterProp="children" filterOption={(input, option) => (option?.children as unknown as string ?? '').toLowerCase().includes(input.toLowerCase())}>
+        <Select optionFilterProp="children" filterOption={(input, option) => (option?.children as unknown as string ?? '').toLowerCase().includes(input.toLowerCase())}>
           {produtos.map(produto => (
             <Option key={produto.id} value={produto.id}>{produto.nome}</Option>
           ))}

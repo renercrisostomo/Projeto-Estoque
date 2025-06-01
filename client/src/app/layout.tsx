@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { Roboto, Roboto_Mono } from "next/font/google";
-import { App, ConfigProvider } from 'antd'; // Imported App
+import { ConfigProvider } from 'antd';
 import "./globals.css";
 import theme from '@/config/theme';
 import ptBR from 'antd/locale/pt_BR';
 import 'dayjs/locale/pt-br';
-import { AuthProvider } from '@/contexts/AuthContext'; // Importa o AuthProvider
+import { AuthProvider } from '@/contexts/AuthContext';
+import "@ant-design/v5-patch-for-react-19";
 
 const robotoSans = Roboto({
   variable: "--font-roboto-sans",
@@ -27,24 +28,6 @@ export const metadata: Metadata = {
   description: "Gestor de Estoque. Trabalho de APS",
 };
 
-// AVISO: Este é um hack temporário para apresentações.
-// NÃO use isso em desenvolvimento normal ou produção.
-if (process.env.NODE_ENV === 'development') {
-  const originalConsoleWarn = console.warn;
-  console.warn = (...args) => {
-    const message = args[0];
-    if (typeof message === 'string' && (
-      message.includes('[antd: compatible] antd v5 support React is 16 ~ 18')
-      || message.includes('[antd: compatible] antd v5 support React is 16 ~ 18. see https://u.ant.design/v5-for-19 for compatible.')
-    )) {
-      // Oculta este aviso específico do Ant Design
-      return;
-    }
-    // Para todos os outros avisos
-    originalConsoleWarn.apply(console, args);
-  };
-}
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -56,11 +39,9 @@ export default function RootLayout({
         className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}
       >
         <ConfigProvider locale={ptBR} theme={theme}>
-          <App> {/* Added App component wrapper */}
-            <AuthProvider>
-              {children}
-            </AuthProvider>
-          </App> {/* Closed App component wrapper */}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ConfigProvider>
       </body>
     </html>

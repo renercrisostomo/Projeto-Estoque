@@ -177,7 +177,7 @@ export default function ProdutosPage() {
           <InputNumber min={0} style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item name="unidadeMedida" label="Unidade de Medida" initialValue="un">
-          <Select style={{ width: 120 }}>
+          <Select>
             {unidadesDeMedida.map(unidade => (
               <Option key={unidade.value} value={unidade.value}>{unidade.label}</Option>
             ))}

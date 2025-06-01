@@ -179,7 +179,7 @@ export default function EntradasPage() {
         label="Produto"
         rules={[{ required: true, message: 'Por favor, selecione o produto!' }]}
       >
-        <Select placeholder="Selecione um produto" showSearch filterOption={(input, option) => (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())}>
+        <Select filterOption={(input, option) => (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())}>
           {/* Assuming p.id is already a number as per Produto type */}
           {produtos.map(p => <Option key={p.id} value={p.id}>{p.nome}</Option>)}
         </Select>
@@ -189,7 +189,7 @@ export default function EntradasPage() {
         label="Fornecedor"
         rules={[{ required: true, message: 'Por favor, selecione o fornecedor!' }]}
       >
-        <Select placeholder="Selecione um fornecedor" showSearch filterOption={(input, option) => (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())}>
+        <Select filterOption={(input, option) => (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())}>
           {/* Ensure f.id (number) is used as the value for the Option */}
           {fornecedores.map(f => <Option key={f.id} value={f.id}>{f.nome}</Option>)}
         </Select>
