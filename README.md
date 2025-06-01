@@ -1,6 +1,6 @@
 # Projeto-Estoque
 
-Trabalho da disciplina Análise e Projeto de Sistemas (APS) do curso Ciências da Computação 7º semestre do IFCE Maracanaú.
+Projeto de um sistema Web para a disciplina Análise e Projeto de Sistemas (APS) do curso Ciências da Computação 7º semestre do IFCE Maracanaú.
 
 ## Visão Geral
 
