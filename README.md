@@ -14,7 +14,7 @@ Antes de começar, certifique-se de ter o seguinte instalado:
 * Apache Maven (versão 3.6 ou superior)
 * Node.js (versão 18 ou superior)
 * npm (versão 9 ou superior) ou yarn/pnpm/bun
-* PostgreSQL (servidor e cliente)
+* PostgreSQL
 
 ## Configuração
 
