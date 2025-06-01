@@ -34,6 +34,8 @@ export default function SaidasPage() {
   const [searchText, setSearchText] = useState('');
   const [formSubmitting, setFormSubmitting] = useState(false);
   const { setTitle } = useTitle();
+  // State for initial values passed to DashboardForm
+  const [formInitialValues, setFormInitialValues] = useState<Partial<SaidaFormSubmitValues> | undefined>(undefined);
 
   useEffect(() => {
     setTitle('Gerenciar Saídas de Produtos');
@@ -75,13 +77,46 @@ export default function SaidasPage() {
 
   const handleAdd = useCallback(() => {
     setEditingSaida(null);
-   
+    setFormInitialValues({ // Set initial values for a new entry
+      dataSaida: dayjs(), // Default to current date for new entries
+      produtoId: undefined,
+      quantidade: '',
+      observacao: '',
+    });
     setIsModalOpen(true);
   }, []); 
 
   const handleEdit = useCallback((record: SaidaProdutoComKey) => {
     setEditingSaida(record);
-   
+
+    const rawDataSaida = record.dataSaida;
+    let dataSaidaAsDayjs: dayjs.Dayjs | null = null;
+
+    if (rawDataSaida) {
+      if (dayjs.isDayjs(rawDataSaida)) {
+        dataSaidaAsDayjs = rawDataSaida;
+      } else if (Array.isArray(rawDataSaida) && rawDataSaida.length === 3 && rawDataSaida.every(n => typeof n === 'number')) {
+        const [year, month, day] = rawDataSaida as unknown as [number, number, number];
+        dataSaidaAsDayjs = dayjs(new Date(year, month - 1, day));
+      } else if (typeof rawDataSaida === 'string') {
+        dataSaidaAsDayjs = dayjs(rawDataSaida);
+      }
+
+      if (dataSaidaAsDayjs && !dataSaidaAsDayjs.isValid()) {
+        console.warn(`Data do registro (${JSON.stringify(rawDataSaida)}) é inválida ou não pôde ser interpretada. Usando null para o campo de data.`);
+        dataSaidaAsDayjs = null;
+      } else if (!dataSaidaAsDayjs && rawDataSaida) {
+        console.warn(`Formato de data não reconhecido para (${JSON.stringify(rawDataSaida)}). Usando null para o campo de data.`);
+        dataSaidaAsDayjs = null;
+      }
+    }
+
+    setFormInitialValues({
+      ...record,
+      produtoId: Number(record.produtoId),
+      quantidade: String(record.quantidade),
+      dataSaida: dataSaidaAsDayjs === null ? undefined : dataSaidaAsDayjs, // Convert null to undefined
+    });
     setIsModalOpen(true);
   }, []); 
 
@@ -157,7 +192,24 @@ export default function SaidasPage() {
     saidas.filter(s => {
       const produto = produtos.find(p => p.id === s.produtoId);
       const produtoNome = produto ? produto.nome : '';
-      const dataSaidaFormatada = dayjs(s.dataSaida).format('DD/MM/YYYY');
+
+      const rawDataSaidaItem = s.dataSaida;
+      let itemDateAsDayjs: dayjs.Dayjs | null = null;
+
+      if (rawDataSaidaItem) {
+        if (dayjs.isDayjs(rawDataSaidaItem)) {
+          itemDateAsDayjs = rawDataSaidaItem;
+        } else if (Array.isArray(rawDataSaidaItem) && rawDataSaidaItem.length === 3 && rawDataSaidaItem.every(n => typeof n === 'number')) {
+          const [year, month, day] = rawDataSaidaItem as unknown as [number, number, number];
+          itemDateAsDayjs = dayjs(new Date(year, month - 1, day));
+        } else if (typeof rawDataSaidaItem === 'string') {
+          itemDateAsDayjs = dayjs(rawDataSaidaItem);
+        }
+      }
+      
+      const dataSaidaFormatada = itemDateAsDayjs && itemDateAsDayjs.isValid() 
+        ? itemDateAsDayjs.format('DD/MM/YYYY') 
+        : (rawDataSaidaItem ? 'Data Inválida' : 'N/A');
       
       return (
         produtoNome.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -245,12 +297,13 @@ export default function SaidasPage() {
         open={isModalOpen}
         onCancel={handleModalCancel}
         onFinish={onFinishModal}
-        editingEntity={editingSaida}
+        editingEntity={editingSaida} // Still used for UI logic (title, button text)
         modalTitle={(entity) => entity ? "Editar Saída de Produto" : "Registrar Nova Saída"}
         formItems={saidaFormItems}
         loading={formSubmitting}
         submitButtonText={(entity) => entity ? "Salvar Alterações" : "Registrar Saída"}
-        initialValues={{ dataSaida: dayjs() } as Partial<SaidaFormSubmitValues>}
+        // Pass the prepared and correctly typed initialValues
+        initialValues={formInitialValues}
       />
     </Spin>
   );
