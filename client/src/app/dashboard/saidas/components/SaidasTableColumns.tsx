@@ -1,4 +1,3 @@
-// src/app/dashboard/saidas/components/SaidasTableColumns.tsx
 import { Space, Button, Tooltip } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { SaidaProdutoComKey } from '@/types/entities';
@@ -6,7 +5,7 @@ import { ColumnsType } from 'antd/es/table';
 
 interface SaidasTableColumnsProps {
   onEdit: (record: SaidaProdutoComKey) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: number) => void;
 }
 
 export const getSaidasTableColumns = ({

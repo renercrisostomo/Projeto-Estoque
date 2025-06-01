@@ -14,6 +14,7 @@ Antes de começar, certifique-se de ter o seguinte instalado:
 * Apache Maven (versão 3.6 ou superior)
 * Node.js (versão 18 ou superior)
 * npm (versão 9 ou superior) ou yarn/pnpm/bun
+* PostgreSQL (servidor e cliente)
 
 ## Configuração
 
@@ -26,6 +27,21 @@ Antes de começar, certifique-se de ter o seguinte instalado:
    ```
 
 2. (Opcional, mas recomendado) Configure as propriedades do banco de dados em `src/main/resources/application.properties` se não for usar o H2 em memória.
+
+3. Crie um arquivo `.env` na raiz do diretório `server` com as seguintes variáveis de ambiente:
+
+   ```env
+   # Configurações do banco de dados
+   DB_URL=jdbc:postgresql://localhost:5432/gestor_estoque_db
+   DB_USERNAME=postgres
+   DB_PASSWORD=admin
+
+   # Configurações do JWT
+   JWT_SECRET=sua_chave_secreta
+   JWT_EXPIRATION=3600000
+   ```
+
+   > **Nota**: Altere `sua_chave_secreta` para uma chave secreta forte e única em produção. Ajuste também o tempo de expiração do JWT conforme necessário.
 
 ### Frontend
 

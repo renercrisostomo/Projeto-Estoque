@@ -17,7 +17,7 @@ export interface MockFornecedor extends Fornecedor {
 // eslint-disable-next-line prefer-const
 export let mockFornecedores: MockFornecedor[] = [
   {
-    id: '1',
+    id: 1, // Changed to number
     nome: 'Tech Distribuidora Global',
     contatoNome: 'Carlos Alberto Silva',
     contatoEmail: 'carlos.silva@techdistglobal.com',
@@ -33,7 +33,7 @@ export let mockFornecedores: MockFornecedor[] = [
     ativo: true,
   },
   {
-    id: '2',
+    id: 2, // Changed to number
     nome: 'Periféricos Master Ltda.',
     contatoNome: 'Ana Beatriz Pereira',
     contatoEmail: 'ana.pereira@perifericosmaster.com.br',
@@ -48,7 +48,7 @@ export let mockFornecedores: MockFornecedor[] = [
     ativo: true,
   },
   {
-    id: '3',
+    id: 3, // Changed to number
     nome: 'Importados Express (Contrato Encerrado)',
     contatoNome: 'João Carlos Costa',
     contatoEmail: 'joao.costa@importexpress.com',
@@ -62,5 +62,37 @@ export let mockFornecedores: MockFornecedor[] = [
     condicoesPagamento: 'À vista',
     observacoes: 'Contrato finalizado. Não realizar novos pedidos.',
     ativo: false, // Exemplo de fornecedor inativo
+  },
+  {
+    id: 4, // Changed to number
+    nome: 'Soluções em Embalagens Seguras',
+    contatoNome: 'Fernanda Oliveira',
+    contatoEmail: 'fernanda.oliveira@embalagensseguras.com',
+    contatoTelefone: '(51) 96666-0004',
+    cnpj: '22.333.444/0001-55',
+    endereco: 'Av. das Indústrias, 321, Porto Alegre, RS',
+    responsavel: 'Roberto Carlos',
+    categoriaProduto: 'Embalagens, Segurança',
+    dataContratoInicio: new Date(Date.UTC(2023, 3, 20)).toISOString(), // Abril 20, 2023
+    dataContratoFim: new Date(Date.UTC(2025, 3, 20)).toISOString(), // Abril 20, 2025
+    condicoesPagamento: 'Net 60 dias',
+    observacoes: 'Fornecedor de embalagens seguras e sustentáveis.',
+    ativo: true,
+  },
+  {
+    id: 5, // Changed to number
+    nome: 'Consultoria Logística Eficaz',
+    contatoNome: 'Marcos Paulo',
+    contatoEmail: 'marcos.paulo@logisticaeficaz.com',
+    contatoTelefone: '(31) 95555-0005',
+    cnpj: '33.444.555/0001-66',
+    endereco: 'Rua da Logística, 654, Belo Horizonte, MG',
+    responsavel: 'Ana Clara',
+    categoriaProduto: 'Consultoria, Logística',
+    dataContratoInicio: new Date(Date.UTC(2022, 7, 1)).toISOString(), // Agosto 1, 2022
+    dataContratoFim: new Date(Date.UTC(2023, 7, 1)).toISOString(), // Agosto 1, 2023
+    condicoesPagamento: 'À vista',
+    observacoes: 'Consultoria especializada em otimização logística.',
+    ativo: true,
   },
 ];

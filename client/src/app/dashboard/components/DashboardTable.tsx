@@ -1,4 +1,3 @@
-// c:\Rener-SSD\github\projeto-estoque\client\src\app\dashboard\components\DashboardTable.tsx
 import React from 'react';
 import { Table } from 'antd';
 import type { TableProps } from 'antd';
@@ -15,7 +14,7 @@ export function DashboardTable<T extends object>({
   columns,
   dataSource,
   loading,
-  rowKey = "id", // Defaulting to "id" as it's commonly used in your pages
+  rowKey = "id",
   bordered = true,
 }: DashboardTableProps<T>) {
   return (

@@ -15,13 +15,13 @@ export interface MockProduto extends Produto {
 // eslint-disable-next-line prefer-const
 export let mockProdutos: MockProduto[] = [
   {
-    id: '1',
+    id: 1, // Changed to number
     nome: 'Laptop UltraPower',
     descricao: 'Laptop de última geração com 16GB RAM e SSD 512GB',
     preco: 7500.00,
     quantidadeEstoque: 15,
     unidadeMedida: 'un',
-    fornecedorId: '1',
+    fornecedorId: 1, // Changed to number
     fornecedorNome: 'Tech Distribuidora',
     categoria: 'Eletrônicos',
     dataEntrada: new Date(Date.UTC(2025, 0, 15)).toISOString(), // Janeiro 15, 2025
@@ -32,13 +32,13 @@ export let mockProdutos: MockProduto[] = [
     ativo: true,
   },
   {
-    id: '2',
+    id: 2, // Changed to number
     nome: 'Mouse Sem Fio Ergonômico',
     descricao: 'Mouse óptico sem fio com design ergonômico',
     preco: 120.50,
     quantidadeEstoque: 50,
     unidadeMedida: 'un',
-    fornecedorId: '1',
+    fornecedorId: 1, // Changed to number
     fornecedorNome: 'Tech Distribuidora',
     categoria: 'Acessórios de Informática',
     dataEntrada: new Date(Date.UTC(2025, 1, 20)).toISOString(), // Fevereiro 20, 2025
@@ -46,13 +46,13 @@ export let mockProdutos: MockProduto[] = [
     ativo: true,
   },
   {
-    id: '3',
+    id: 3, // Changed to number
     nome: 'Teclado Mecânico Gamer RGB',
     descricao: 'Teclado mecânico com switches blue e iluminação RGB',
     preco: 350.00,
     quantidadeEstoque: 0, // Exemplo de produto sem estoque
     unidadeMedida: 'un',
-    fornecedorId: '2',
+    fornecedorId: 2, // Changed to number
     fornecedorNome: 'Periféricos Master',
     categoria: 'Acessórios Gamer',
     dataEntrada: new Date(Date.UTC(2024, 11, 10)).toISOString(), // Dezembro 10, 2024
@@ -61,13 +61,13 @@ export let mockProdutos: MockProduto[] = [
     ativo: false, // Exemplo de produto inativo
   },
   {
-    id: '4',
+    id: 4, // Changed to number
     nome: 'Monitor LED 27 polegadas 4K',
     descricao: 'Monitor de alta resolução para trabalho e jogos',
     preco: 1800.00,
     quantidadeEstoque: 10,
     unidadeMedida: 'un',
-    fornecedorId: '1',
+    fornecedorId: 1, // Changed to number
     fornecedorNome: 'Tech Distribuidora',
     categoria: 'Monitores',
     dataEntrada: new Date(Date.UTC(2025, 2, 5)).toISOString(), // Março 5, 2025

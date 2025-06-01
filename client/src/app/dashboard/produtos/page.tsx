@@ -1,4 +1,3 @@
-// src/app/dashboard/produtos/page.tsx
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -6,8 +5,8 @@ import { Form, Input, Select, Space, message, InputNumber } from 'antd';
 import axios from 'axios';
 import { ProdutoFormData, ProdutoComKey } from '@/types/entities'; 
 import { produtoService } from '@/services/produtoService';
+import { useTitle } from '@/contexts/TitleContext';
 
-// Import generic components
 import { DashboardPageHeader } from '../components/DashboardPageHeader';
 import { DashboardTable } from '../components/DashboardTable';
 import { DashboardForm } from '../components/DashboardForm';
@@ -34,8 +33,13 @@ export default function ProdutosPage() {
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage(); 
+  const { setTitle } = useTitle();
   
   const [form] = Form.useForm<ProdutoFormData>();
+
+  useEffect(() => {
+    setTitle('Gerenciar Produtos');
+  }, [setTitle]);
 
   const fetchProdutos = useCallback(async () => {
     setLoading(true);
@@ -56,7 +60,7 @@ export default function ProdutosPage() {
   }, [messageApi]);
 
   useEffect(() => {
-    fetchProdutos(); // Fetch products directly
+    fetchProdutos();
   }, [fetchProdutos]);
 
   const handleAdd = useCallback(() => {
@@ -65,7 +69,7 @@ export default function ProdutosPage() {
   }, []);
 
   const handleEdit = useCallback((record: ProdutoComKey) => {
-    form.setFieldsValue(record); // record no longer has fornecedorId
+    form.setFieldsValue(record);
     setEditingProduto(record);
     setIsModalOpen(true);
   }, [form]);
@@ -185,13 +189,13 @@ export default function ProdutosPage() {
 
   return (
     <div>
-      {contextHolder} {/* Added contextHolder */}
+      {contextHolder}
       <DashboardPageHeader
         searchText={searchText}
         onSearchTextChange={setSearchText}
         onAddButtonClick={handleAdd}
         addButtonText="Adicionar Produto"
-        searchPlaceholder="Buscar em todos os campos..."
+        searchPlaceholder="Buscar em produtos..."
         addButtonLoading={loading && !isModalOpen}
       />
 

@@ -10,7 +10,7 @@ export const entradaService = {
     return response.data;
   },
 
-  obterEntradaPorId: async (id: string): Promise<EntradaProduto> => {
+  obterEntradaPorId: async (id: number): Promise<EntradaProduto> => {
     const response = await api.get<EntradaProduto>(`${BASE_URL}/${id}`);
     return response.data;
   },
@@ -20,12 +20,12 @@ export const entradaService = {
     return response.data;
   },
 
-  atualizarEntrada: async (id: string, data: Partial<EntradaProdutoFormData>): Promise<EntradaProduto> => {
+  atualizarEntrada: async (id: number, data: Partial<EntradaProdutoFormData>): Promise<EntradaProduto> => {
     const response = await api.put<EntradaProduto>(`${BASE_URL}/${id}`, data);
     return response.data;
   },
 
-  deletarEntrada: async (id: string): Promise<void> => {
+  deletarEntrada: async (id: number): Promise<void> => {
     await api.delete(`${BASE_URL}/${id}`);
   },
 };

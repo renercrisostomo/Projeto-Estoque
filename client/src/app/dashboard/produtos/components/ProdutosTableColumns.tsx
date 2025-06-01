@@ -9,7 +9,7 @@ type ProdutoComKey = Produto & { key: string };
 interface GetColumnsProps {
   handleEdit: (record: ProdutoComKey) => void;
   handleDelete: (id: number) => void;
-  clearGlobalSearch: () => void; // To clear the main search input from column filter
+  clearGlobalSearch: () => void;
 }
 
 export const getProdutosTableColumns = ({
@@ -46,7 +46,7 @@ export const getProdutosTableColumns = ({
               if (clearFilters) {
                 clearFilters();
               }
-              clearGlobalSearch(); // Also clear global search if desired, or remove this line
+              clearGlobalSearch();
               confirm();
             }} 
             size="small" 
@@ -84,7 +84,7 @@ export const getProdutosTableColumns = ({
         <Button icon={<EditOutlined />} onClick={() => handleEdit(record)} />
         <Popconfirm
           title="Tem certeza que deseja excluir este produto?"
-          onConfirm={() => handleDelete(record.id)} // Removed 'as number' cast
+          onConfirm={() => handleDelete(record.id)}
           okText="Sim"
           cancelText="Não"
         >

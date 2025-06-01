@@ -1,4 +1,3 @@
-// src/app/dashboard/entradas/components/EntradasTableColumns.tsx
 import { Space, Button, Tooltip } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { EntradaProdutoComKey } from '@/types/entities';
@@ -6,7 +5,7 @@ import { ColumnsType } from 'antd/es/table';
 
 interface EntradasTableColumnsProps {
   onEdit: (record: EntradaProdutoComKey) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: number) => void; // Changed id type to number
 }
 
 export const getEntradasTableColumns = ({

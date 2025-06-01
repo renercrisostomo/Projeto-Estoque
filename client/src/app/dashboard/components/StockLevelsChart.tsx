@@ -1,13 +1,11 @@
-// filepath: c:\\Rener-SSD\\github\\projeto-estoque\\client\\src\\app\\dashboard\\components\\StockLevelsChart.tsx
 "use client";
 
 import dynamic from 'next/dynamic';
 import React from 'react';
 
-// Dynamically import ApexCharts to prevent SSR issues
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
-export interface StockLevelData { // Exporting the interface
+export interface StockLevelData {
   name: string;
   quantity: number;
 }

@@ -1,4 +1,3 @@
-// src/app/dashboard/entradas/page.tsx
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -14,6 +13,7 @@ import { DashboardPageHeader } from '../components/DashboardPageHeader';
 import { DashboardTable } from '../components/DashboardTable';
 import { DashboardForm } from '../components/DashboardForm';
 import { getEntradasTableColumns } from './components/EntradasTableColumns';
+import { useTitle } from '@/contexts/TitleContext';
 
 const { Option } = Select;
 
@@ -26,7 +26,12 @@ export default function EntradasPage() {
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+  const { setTitle } = useTitle();
   const [form] = Form.useForm<EntradaProdutoFormData>();
+
+  useEffect(() => {
+    setTitle('Gerenciar Entradas de Produtos');
+  }, [setTitle]);
 
   const fetchProdutos = useCallback(async () => {
     try {
@@ -90,12 +95,12 @@ export default function EntradasPage() {
     form.setFieldsValue({
       ...record,
       dataEntrada: dayjs(record.dataEntrada).toISOString(),
-      fornecedorId: record.fornecedorId ? String(record.fornecedorId) : undefined,
+      fornecedorId: record.fornecedorId, 
     });
     setIsModalOpen(true);
   }, [form]);
 
-  const handleDelete = useCallback(async (id: string) => {
+  const handleDelete = useCallback(async (id: number) => {
     setLoading(true);
     try {
       await entradaService.deletarEntrada(id);
@@ -121,12 +126,13 @@ export default function EntradasPage() {
       dataEntrada: dayjs(values.dataEntrada).toISOString(),
       quantidade: Number(values.quantidade),
       precoCusto: values.precoCusto ? Number(values.precoCusto) : undefined,
-      fornecedorId: values.fornecedorId, // Keep as string, matching the type definition
+      // fornecedorId from 'values' should now be a number due to Select change
+      fornecedorId: values.fornecedorId, 
     };
 
     try {
       if (editingEntrada) {
-        await entradaService.atualizarEntrada(String(editingEntrada.id), payload);
+        await entradaService.atualizarEntrada(editingEntrada.id, payload);
         messageApi.success('Registro de entrada atualizado com sucesso!');
       } else {
         await entradaService.criarEntrada(payload);
@@ -174,6 +180,7 @@ export default function EntradasPage() {
         rules={[{ required: true, message: 'Por favor, selecione o produto!' }]}
       >
         <Select placeholder="Selecione um produto" showSearch filterOption={(input, option) => (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())}>
+          {/* Assuming p.id is already a number as per Produto type */}
           {produtos.map(p => <Option key={p.id} value={p.id}>{p.nome}</Option>)}
         </Select>
       </Form.Item>
@@ -183,7 +190,8 @@ export default function EntradasPage() {
         rules={[{ required: true, message: 'Por favor, selecione o fornecedor!' }]}
       >
         <Select placeholder="Selecione um fornecedor" showSearch filterOption={(input, option) => (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())}>
-          {fornecedores.map(f => <Option key={f.id} value={String(f.id)}>{f.nome}</Option>)}
+          {/* Ensure f.id (number) is used as the value for the Option */}
+          {fornecedores.map(f => <Option key={f.id} value={f.id}>{f.nome}</Option>)}
         </Select>
       </Form.Item>
       <Form.Item
@@ -222,7 +230,7 @@ export default function EntradasPage() {
         onSearchTextChange={handleSearchTextChange}
         onAddButtonClick={handleAdd}
         addButtonText="Registrar Entrada"
-        searchPlaceholder="Buscar em todas as entradas..."
+        searchPlaceholder="Buscar em entradas..."
         addButtonLoading={loading && !isModalOpen}
       />
       <DashboardTable<EntradaProdutoComKey>

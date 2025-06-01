@@ -1,5 +1,5 @@
 export interface Fornecedor {
-  id: string; // Assuming Fornecedor ID might remain string, adjust if needed
+  id: number; // Changed from string to number
   nome: string;
   contatoNome?: string;
   contatoEmail?: string;
@@ -15,6 +15,8 @@ export interface Produto {
   preco: number;
   quantidadeEstoque: number;
   unidadeMedida: string; // Ex: "un", "kg", "L", "m"
+  fornecedorId?: number; // ADDED: Foreign key for Fornecedor, changed to number
+  fornecedorNome?: string; // ADDED: To display supplier name, optional
 }
 
 // Para formulários, podemos querer dados parciais ou sem ID
@@ -31,10 +33,10 @@ export interface ProdutoComKey extends Produto {
 
 // Entradas de Produtos
 export interface EntradaProduto {
-  id: string; // Ou number, dependendo da sua API
+  id: number; // Changed from string to number
   produtoId: number;
   produtoNome?: string; // Para exibição
-  fornecedorId: string; // ADDED: ID do fornecedor para esta entrada
+  fornecedorId: number; // CHANGED: ID do fornecedor para esta entrada from string to number
   fornecedorNome?: string; // ADDED: Para exibição
   quantidade: number;
   dataEntrada: string; // ISO Date string
@@ -50,7 +52,7 @@ export interface EntradaProdutoComKey extends EntradaProduto {
 
 // Saídas de Produtos
 export interface SaidaProduto {
-  id: string; // Ou number, dependendo da sua API
+  id: number; // Changed from string to number
   produtoId: number;
   produtoNome?: string; // Para exibição
   quantidade: number;

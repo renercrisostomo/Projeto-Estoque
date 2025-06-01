@@ -5,6 +5,7 @@ import { setCookie, parseCookies, destroyCookie } from 'nookies';
 import { useRouter, usePathname } from 'next/navigation';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { notification as antdNotification } from 'antd'; // Renamed to avoid conflict
+import axios from 'axios'; // Import axios itself for isAxiosError
 
 import { api as axiosApi } from '../services/api'; // Renamed api to axiosApi to avoid conflict
 import { AuthResponse, LoginRequest, RegisterRequest, signInRequest, registerRequest } from '../services/auth';
@@ -55,8 +56,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       router.push('/dashboard');
       notificationApi.success({ message: 'Login realizado com sucesso!' }); // Use notificationApi
     } catch (error) {
-      console.error('AuthContext: Erro no signIn:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Ocorreu um erro inesperado.';
+      console.error("AuthContext: Erro no signIn. Full error object:", error);
+      
+      let errorMessage = 'Ocorreu um erro inesperado.';
+      if (axios.isAxiosError(error)) { // Correctly use axios.isAxiosError
+        console.error("Axios error details:");
+        if (error.config) {
+          console.error("Request config (url, method, headers):");
+          console.error(`  URL: ${error.config.url}`);
+          console.error(`  Method: ${error.config.method}`);
+          console.error(`  Headers: ${JSON.stringify(error.config.headers, null, 2)}`);
+        }
+        if (error.response) {
+          console.error("Response object (status, data, headers):");
+          console.error(`  Status: ${error.response.status}`);
+          console.error(`  Data: ${JSON.stringify(error.response.data, null, 2)}`);
+          console.error(`  Headers: ${JSON.stringify(error.response.headers, null, 2)}`);
+          if (error.response.data && typeof error.response.data.message === 'string') {
+            errorMessage = error.response.data.message;
+          } else if (typeof error.response.data === 'string') {
+            errorMessage = error.response.data; // Handle plain string errors
+          }
+        } else if (error.request) {
+          // Error occurred, but no response was received (e.g., network error, DNS issue)
+          errorMessage = 'Não foi possível conectar ao servidor. Verifique sua conexão de rede.';
+          console.error("No response received from server. This is likely a network issue or the server is down.");
+        } else if (error.message) {
+          // Something happened in setting up the request that triggered an Error
+          errorMessage = error.message;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
       notificationApi.error({ message: 'Erro no Login', description: errorMessage }); // Use notificationApi
     } finally {
       setIsLoading(false);
@@ -66,18 +98,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = useCallback(async (data: RegisterRequest) => {
     setIsLoading(true);
     try {
-      // Call the registration service but don't automatically log in
       await registerRequest(data);
-
-      // Redirect to login page after successful registration
       router.push('/auth/login');
       notificationApi.success({
         message: 'Cadastro realizado com sucesso!',
         description: 'Por favor, faça login para continuar.'
       });
     } catch (error) {
-      console.error("Registration failed:", error);
-      const errorMessage = error instanceof Error ? error.message : 'Ocorreu um erro inesperado.';
+      console.error("Registration failed. Full error object:", error);
+      
+      let errorMessage = 'Ocorreu um erro inesperado.';
+      if (axios.isAxiosError(error)) { // Correctly use axios.isAxiosError
+        console.error("Axios error details:");
+        if (error.config) {
+          console.error("Request config (url, method, headers):");
+          console.error(`  URL: ${error.config.url}`);
+          console.error(`  Method: ${error.config.method}`);
+          console.error(`  Headers: ${JSON.stringify(error.config.headers, null, 2)}`);
+        }
+        // error.request can be complex (e.g., XMLHttpRequest or ClientRequest instance)
+        // Avoid logging it directly unless necessary, as it can be very verbose.
+        // console.error("Request object:", error.request);
+        if (error.response) {
+          console.error("Response object (status, data, headers):");
+          console.error(`  Status: ${error.response.status}`);
+          console.error(`  Data: ${JSON.stringify(error.response.data, null, 2)}`);
+          console.error(`  Headers: ${JSON.stringify(error.response.headers, null, 2)}`);
+          if (error.response.data && typeof error.response.data.message === 'string') {
+            errorMessage = error.response.data.message;
+          } else if (typeof error.response.data === 'string') {
+            errorMessage = error.response.data; // Handle plain string errors
+          }
+        } else if (error.request) {
+          // Error occurred, but no response was received (e.g., network error, DNS issue)
+          errorMessage = 'Não foi possível conectar ao servidor. Verifique sua conexão de rede.';
+          console.error("No response received from server. This is likely a network issue or the server is down.");
+        } else if (error.message) {
+          // Something happened in setting up the request that triggered an Error
+          errorMessage = error.message;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
       notificationApi.error({ message: 'Erro no Cadastro', description: errorMessage });
     } finally {
       setIsLoading(false);

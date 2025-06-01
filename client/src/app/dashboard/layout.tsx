@@ -1,23 +1,22 @@
 "use client";
 
-import React, { useState, useContext } from 'react'; // Ensured useContext is imported
+import React, { useState, useContext } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  DesktopOutlined,
   PieChartOutlined,
-  TeamOutlined,
-  UserOutlined,
   AppstoreOutlined,
   ShopOutlined,
   SolutionOutlined,
   LogoutOutlined,
-  ArrowDownOutlined, // Added for Entradas
-  ArrowUpOutlined,   // Added for Saidas
+  ArrowDownOutlined,
+  ArrowUpOutlined,  
+  FileTextOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu, theme } from 'antd'; // Ensured Layout, Menu, Breadcrumb, theme are imported
+import { Breadcrumb, Layout, Menu, theme } from 'antd';
 import { AuthContext } from '@/contexts/AuthContext';
+import { TitleProvider, useTitle } from '@/contexts/TitleContext';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -37,24 +36,21 @@ function getItem(
   } as MenuItem;
 }
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
-  const { signOut } = useContext(AuthContext); // Get signOut from context
+  const { signOut } = useContext(AuthContext);
+  const { title } = useTitle();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
   const handleLogout = () => {
     signOut();
-    // No need to redirect here, signOut in AuthContext should handle it
+    
   };
 
-  // Define menu items including the logout item
+  
   const menuItems: MenuItem[] = [
     getItem(<Link href="/dashboard">Visão Geral</Link>, '/dashboard', <PieChartOutlined />),
     getItem('Cadastros', 'sub1', <AppstoreOutlined />, [
@@ -63,17 +59,13 @@ export default function DashboardLayout({
       getItem(<Link href="/dashboard/entradas">Entradas</Link>, '/dashboard/entradas', <ArrowDownOutlined />),
       getItem(<Link href="/dashboard/saidas">Saídas</Link>, '/dashboard/saidas', <ArrowUpOutlined />),
     ]),
-    getItem('Equipe', 'sub2', <TeamOutlined />, [
-      getItem('Membro 1', '6', <UserOutlined />),
-      getItem('Membro 2', '8', <UserOutlined />)
-    ]),
-    getItem('Arquivos', '9', <DesktopOutlined />),
-    getItem('Sair', 'logout', <LogoutOutlined />, undefined), // Logout item
+    getItem('Relatórios', 'reports', <FileTextOutlined />),
+    getItem('Sair', 'logout', <LogoutOutlined />, undefined), 
   ];
 
 
-  // Determinar chaves abertas e selecionadas com base no pathname
-  const defaultOpenKeys = menuItems.reduce((acc, item) => { // Changed items to menuItems
+  
+  const defaultOpenKeys = menuItems.reduce((acc, item) => { 
     if (item && 'children' in item && item.children) {
       const childHasActivePath = item.children.some(child => child && child.key === pathname);
       if (childHasActivePath && item.key) {
@@ -87,7 +79,6 @@ export default function DashboardLayout({
     if (e.key === 'logout') {
       handleLogout();
     }
-    // For other menu items, navigation is handled by Link components
   };
 
   return (
@@ -96,10 +87,10 @@ export default function DashboardLayout({
         <div className="demo-logo-vertical flex items-center justify-center my-4">
           <Link href="/dashboard">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src="/estoque-logo.png" 
-              alt="Logo" 
-              style={{ height: collapsed ? 28 : 32, transition: 'height 0.3s' }} 
+            <img
+              src="/estoque-logo.png"
+              alt="Logo"
+              style={{ height: collapsed ? 28 : 32, transition: 'height 0.3s' }}
             />
           </Link>
         </div>
@@ -107,8 +98,7 @@ export default function DashboardLayout({
       </Sider>
       <Layout>
         <Header style={{ padding: '0 16px', background: colorBgContainer }}>
-          {/* Pode adicionar um cabeçalho aqui, como nome do usuário, notificações, etc. */}
-          <span className="text-lg font-semibold">Gestor de Estoque</span>
+          <span className="text-lg font-semibold">{title}</span> {/* Titulo dinamico conforme pagina */}
         </Header>
         <Content style={{ margin: '0 16px' }}>
           <Breadcrumb style={{ margin: '16px 0' }}>
@@ -136,5 +126,17 @@ export default function DashboardLayout({
         </Footer>
       </Layout>
     </Layout>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <TitleProvider>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </TitleProvider>
   );
 }

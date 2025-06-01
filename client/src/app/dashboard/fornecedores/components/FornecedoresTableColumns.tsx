@@ -1,4 +1,3 @@
-// client/src/app/dashboard/fornecedores/components/FornecedoresTableColumns.tsx
 import React from 'react';
 import { Button, Input, Space, Popconfirm } from 'antd';
 import { EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
@@ -44,7 +43,7 @@ export const getFornecedoresTableColumns = ({
                 clearFilters(); 
                 // setSearchText(''); // Removed: This was trying to access setSearchText from parent scope
               } 
-              confirm(); // Confirm to apply the cleared filter state
+              confirm();
             }} 
             size="small" 
             style={{ width: 90 }}

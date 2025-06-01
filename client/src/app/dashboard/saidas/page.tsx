@@ -1,125 +1,99 @@
-// src/app/dashboard/saidas/page.tsx
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Form, message, Input, Select, DatePicker, InputNumber } from 'antd';
-import { SaidaProdutoFormData, SaidaProdutoComKey, Produto } from '@/types/entities';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { Form, Input, DatePicker, Select, message, Spin } from 'antd';
+import dayjs from 'dayjs';
+import { getSaidasTableColumns } from './components/SaidasTableColumns';
 import { saidaService } from '@/services/saidaService';
 import { produtoService } from '@/services/produtoService';
+import { Produto, SaidaProdutoComKey, SaidaProdutoFormData } from '@/types/entities';
 import axios from 'axios';
-import dayjs from 'dayjs';
 
 import { DashboardPageHeader } from '../components/DashboardPageHeader';
 import { DashboardTable } from '../components/DashboardTable';
 import { DashboardForm } from '../components/DashboardForm';
-import { getSaidasTableColumns } from './components/SaidasTableColumns';
+import { useTitle } from '@/contexts/TitleContext';
 
 const { Option } = Select;
 
+interface SaidaFormSubmitValues {
+  produtoId: number;
+  quantidade: string;
+  dataSaida: dayjs.Dayjs;
+  observacao?: string;
+}
+
 export default function SaidasPage() {
+  const [form] = Form.useForm<SaidaFormSubmitValues>();
   const [saidas, setSaidas] = useState<SaidaProdutoComKey[]>([]);
   const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSaida, setEditingSaida] = useState<SaidaProdutoComKey | null>(null);
-  const [searchText, setSearchText] = useState('');
-  const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
-  const [form] = Form.useForm<SaidaProdutoFormData>();
+  const [searchText, setSearchText] = useState('');
+  const [formSubmitting, setFormSubmitting] = useState(false);
+  const { setTitle } = useTitle();
 
-  const fetchProdutos = useCallback(async () => {
-    try {
-      const response = await produtoService.listarProdutos();
-      setProdutos(Array.isArray(response) ? response : []);
-    } catch (error) {
-      console.error("Erro ao buscar produtos:", error);
-      messageApi.error('Falha ao carregar produtos para o formulário.');
-    }
-  }, [messageApi]);
+  useEffect(() => {
+    setTitle('Gerenciar Saídas de Produtos');
+  }, [setTitle]);
 
   const fetchSaidas = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await saidaService.listarSaidas();
-      const dataToMap = Array.isArray(response) ? response : [];
-      const saidasComProdutoNome = dataToMap.map(s => ({
-        ...s,
-        key: String(s.id),
-        produtoNome: produtos.find(p => p.id === s.produtoId)?.nome || 'Produto não encontrado',
+      const data = await saidaService.listarSaidas();
+      const processedData = data.map(s => ({ 
+        ...s, 
+        key: String(s.id), 
+        id: Number(s.id), 
+        produtoId: Number(s.produtoId) 
       }));
-      setSaidas(saidasComProdutoNome);
+      setSaidas(processedData);
     } catch (error) {
-      console.error("Erro ao buscar saídas:", error);
-      messageApi.error('Falha ao carregar registros de saída.');
+      console.error("Erro ao buscar registros de saída:", error);
+      messageApi.error('Falha ao carregar os registros de saída.');
     } finally {
       setLoading(false);
     }
-  }, [messageApi, produtos]);
+  }, [messageApi]);
+
+  const fetchProdutos = useCallback(async () => {
+    try {
+      const data = await produtoService.listarProdutos();
+      setProdutos(data.map(p => ({ ...p, id: Number(p.id) })));
+    } catch (error) {
+      console.error("Erro ao buscar produtos:", error);
+      messageApi.error('Falha ao carregar os produtos para o formulário.');
+    }
+  }, [messageApi]);
 
   useEffect(() => {
     fetchProdutos();
-  }, [fetchProdutos]);
-
-  useEffect(() => {
-    if (produtos.length > 0) {
-      fetchSaidas();
-    }
-  }, [fetchSaidas, produtos]);
+    fetchSaidas();
+  }, [fetchProdutos, fetchSaidas]);
 
   const handleAdd = useCallback(() => {
     setEditingSaida(null);
-    form.setFieldsValue({ dataSaida: dayjs().toISOString() }); // Default to today
+   
     setIsModalOpen(true);
-  }, [form]);
+  }, []); 
 
   const handleEdit = useCallback((record: SaidaProdutoComKey) => {
     setEditingSaida(record);
-    form.setFieldsValue({
-      ...record,
-      dataSaida: dayjs(record.dataSaida).toISOString(),
-    });
+   
     setIsModalOpen(true);
-  }, [form]);
+  }, []); 
 
-  const handleDelete = useCallback(async (id: string) => {
+  const handleDelete = useCallback(async (id: number) => {
     setLoading(true);
     try {
       await saidaService.deletarSaida(id);
       messageApi.success('Registro de saída excluído com sucesso!');
       await fetchSaidas();
     } catch (error) {
-      console.error("Erro ao excluir saída:", error);
-      messageApi.error('Falha ao excluir registro de saída.');
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchSaidas, messageApi]);
-
-  const handleModalCancel = useCallback(() => {
-    setIsModalOpen(false);
-    setEditingSaida(null);
-  }, []);
-
-  const onFinishModal = useCallback(async (values: SaidaProdutoFormData): Promise<void> => {
-    setLoading(true);
-    const payload: SaidaProdutoFormData = {
-      ...values,
-      dataSaida: dayjs(values.dataSaida).toISOString(),
-      quantidade: Number(values.quantidade),
-    };
-
-    try {
-      if (editingSaida) {
-        await saidaService.atualizarSaida(String(editingSaida.id), payload);
-        messageApi.success('Registro de saída atualizado com sucesso!');
-      } else {
-        await saidaService.criarSaida(payload);
-        messageApi.success('Registro de saída adicionado com sucesso!');
-      }
-      setIsModalOpen(false);
-      await fetchSaidas();
-    } catch (error) {
-      console.error("Erro ao salvar saída:", error);
-      let errorMsg = 'Falha ao salvar registro de saída.';
+      console.error("Erro ao excluir registro de saída:", error);
+      let errorMsg = 'Falha ao excluir registro de saída.';
       if (axios.isAxiosError(error) && error.response?.data?.message) {
         errorMsg = error.response.data.message;
       } else if (error instanceof Error) {
@@ -129,7 +103,46 @@ export default function SaidasPage() {
     } finally {
       setLoading(false);
     }
-  }, [editingSaida, fetchSaidas, messageApi]);
+  }, [fetchSaidas, messageApi]);
+
+  const handleModalCancel = useCallback(() => {
+    setIsModalOpen(false);
+    setEditingSaida(null);
+    // form.resetFields(); // Handled by DashboardForm or its destroyOnClose
+  }, []); 
+
+  const onFinishModal = useCallback(async (values: SaidaFormSubmitValues) => {
+    setFormSubmitting(true);
+    const payload: SaidaProdutoFormData = {
+      produtoId: Number(values.produtoId),
+      quantidade: Number(values.quantidade),
+      dataSaida: values.dataSaida.toISOString(),
+      observacao: values.observacao,
+    };
+
+    try {
+      if (editingSaida) {
+        await saidaService.atualizarSaida(Number(editingSaida.id), payload);
+        messageApi.success('Registro de saída atualizado com sucesso!');
+      } else {
+        await saidaService.criarSaida(payload);
+        messageApi.success('Registro de saída adicionado com sucesso!');
+      }
+      setIsModalOpen(false);
+      await fetchSaidas();
+    } catch (error) {
+      console.error("Erro ao salvar registro de saída:", error);
+      let errorMsg = 'Falha ao salvar registro de saída.';
+      if (axios.isAxiosError(error) && error.response?.data?.message) {
+        errorMsg = error.response.data.message;
+      } else if (error instanceof Error) {
+        errorMsg = error.message;
+      }
+      messageApi.error(errorMsg);
+    } finally {
+      setFormSubmitting(false);
+    }
+  }, [editingSaida, fetchSaidas, messageApi]); 
 
   const handleSearchTextChange = useCallback((text: string) => {
     setSearchText(text);
@@ -141,12 +154,19 @@ export default function SaidasPage() {
   }), [handleEdit, handleDelete]);
 
   const filteredSaidas = useMemo(() =>
-    saidas.filter(s =>
-      Object.values(s).some(value =>
-        String(value).toLowerCase().includes(searchText.toLowerCase())
-      )
-    ),
-    [saidas, searchText]
+    saidas.filter(s => {
+      const produto = produtos.find(p => p.id === s.produtoId);
+      const produtoNome = produto ? produto.nome : '';
+      const dataSaidaFormatada = dayjs(s.dataSaida).format('DD/MM/YYYY');
+      
+      return (
+        produtoNome.toLowerCase().includes(searchText.toLowerCase()) ||
+        String(s.quantidade).toLowerCase().includes(searchText.toLowerCase()) ||
+        dataSaidaFormatada.includes(searchText.toLowerCase()) ||
+        (s.observacao && s.observacao.toLowerCase().includes(searchText.toLowerCase()))
+      );
+    }),
+    [saidas, produtos, searchText]
   );
 
   const saidaFormItems = useMemo(() => (
@@ -156,66 +176,82 @@ export default function SaidasPage() {
         label="Produto"
         rules={[{ required: true, message: 'Por favor, selecione o produto!' }]}
       >
-        <Select placeholder="Selecione um produto" showSearch filterOption={(input, option) => (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())}>
-          {produtos.map(p => <Option key={p.id} value={p.id}>{p.nome}</Option>)}
+        <Select placeholder="Selecione um produto" allowClear showSearch optionFilterProp="children" filterOption={(input, option) => (option?.children as unknown as string ?? '').toLowerCase().includes(input.toLowerCase())}>
+          {produtos.map(produto => (
+            <Option key={produto.id} value={produto.id}>{produto.nome}</Option>
+          ))}
         </Select>
       </Form.Item>
       <Form.Item
         name="quantidade"
         label="Quantidade"
-        rules={[{ required: true, message: 'Por favor, insira a quantidade!' }, { type: 'number', min: 1, message: 'A quantidade deve ser maior que zero!'}]}
+        rules={[
+          { required: true, message: 'Por favor, insira a quantidade!' },
+          {
+            validator: async (_, value) => {
+              if (value === undefined || value === null || String(value).trim() === '') {
+                return Promise.resolve();
+              }
+              const numValue = Number(value);
+              if (isNaN(numValue)) {
+                return Promise.reject(new Error('Quantidade deve ser um número!'));
+              }
+              if (numValue <= 0) {
+                return Promise.reject(new Error('A quantidade deve ser maior que zero!'));
+              }
+              return Promise.resolve();
+            }
+          }
+        ]}
       >
-        <InputNumber min={1} style={{ width: '100%' }} />
+        <Input type="number" min={1} />
       </Form.Item>
       <Form.Item
         name="dataSaida"
         label="Data da Saída"
-        rules={[{ required: true, message: 'Por favor, selecione a data!' }]}
-        getValueProps={(value) => ({ value: value ? dayjs(value) : null })}
+        rules={[{ required: true, message: 'Por favor, selecione a data da saída!' }]}
       >
         <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
       </Form.Item>
-      <Form.Item name="motivo" label="Motivo da Saída">
-        <Input placeholder="Ex: Venda, Perda, Ajuste" />
-      </Form.Item>
-      <Form.Item name="cliente" label="Cliente/Destino">
-        <Input placeholder="Opcional" />
-      </Form.Item>
-      <Form.Item name="observacao" label="Observação">
-        <Input.TextArea rows={2} placeholder="Opcional" />
+      <Form.Item
+        name="observacao"
+        label="Observação"
+      >
+        <Input.TextArea rows={3} />
       </Form.Item>
     </>
   ), [produtos]);
 
   return (
-    <div>
+    <Spin spinning={loading && saidas.length === 0 && produtos.length === 0 && !isModalOpen}>
       {contextHolder}
       <DashboardPageHeader
         searchText={searchText}
         onSearchTextChange={handleSearchTextChange}
         onAddButtonClick={handleAdd}
         addButtonText="Registrar Saída"
-        searchPlaceholder="Buscar em todas as saídas..."
-        addButtonLoading={loading && !isModalOpen}
+        searchPlaceholder="Buscar em saídas..."
+        addButtonLoading={loading && !isModalOpen} 
       />
       <DashboardTable<SaidaProdutoComKey>
         columns={tableColumns}
         dataSource={filteredSaidas}
-        loading={loading}
+        loading={loading && !isModalOpen} 
         rowKey="key"
         bordered
       />
-      <DashboardForm<SaidaProdutoFormData, SaidaProdutoComKey | null>
+      <DashboardForm<SaidaFormSubmitValues, SaidaProdutoComKey | null>
         form={form}
         open={isModalOpen}
         onCancel={handleModalCancel}
         onFinish={onFinishModal}
         editingEntity={editingSaida}
-        modalTitle={(entity) => entity ? "Editar Registro de Saída" : "Registrar Nova Saída"}
+        modalTitle={(entity) => entity ? "Editar Saída de Produto" : "Registrar Nova Saída"}
         formItems={saidaFormItems}
-        loading={loading && isModalOpen}
+        loading={formSubmitting}
         submitButtonText={(entity) => entity ? "Salvar Alterações" : "Registrar Saída"}
+        initialValues={{ dataSaida: dayjs() } as Partial<SaidaFormSubmitValues>}
       />
-    </div>
+    </Spin>
   );
 }
