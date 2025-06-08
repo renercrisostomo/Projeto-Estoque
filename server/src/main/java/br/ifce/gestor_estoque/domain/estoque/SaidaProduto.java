@@ -34,58 +34,144 @@ public class SaidaProduto {
     private String observacao;
 
     // Getters e Setters
+    /**
+     * Retorna o ID da saída do produto.
+     * @return o ID da saída do produto.
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Define o ID da saída do produto.
+     * Este método é geralmente usado pelo JPA e não deve ser chamado diretamente.
+     * @param id o novo ID da saída do produto.
+     */
     public void setId(Long id) {
         this.id = id;
     }
 
+    /**
+     * Retorna o produto associado a esta saída.
+     * @return o produto.
+     */
     public Produto getProduto() {
         return produto;
     }
 
+    /**
+     * Define o produto associado a esta saída.
+     * O produto não pode ser nulo.
+     * @param produto o produto a ser associado.
+     * @throws IllegalArgumentException se o produto for nulo.
+     */
     public void setProduto(Produto produto) {
+        if (produto == null) {
+            throw new IllegalArgumentException("O produto não pode ser nulo.");
+        }
         this.produto = produto;
     }
 
+    /**
+     * Retorna a quantidade de produtos na saída.
+     * @return a quantidade.
+     */
     public Integer getQuantidade() {
         return quantidade;
     }
 
+    /**
+     * Define a quantidade de produtos na saída.
+     * A quantidade não pode ser nula e deve ser positiva.
+     * @param quantidade a quantidade de produtos.
+     * @throws IllegalArgumentException se a quantidade for nula ou não positiva.
+     */
     public void setQuantidade(Integer quantidade) {
+        if (quantidade == null) {
+            throw new IllegalArgumentException("A quantidade não pode ser nula.");
+        }
+        if (quantidade <= 0) {
+            throw new IllegalArgumentException("A quantidade deve ser positiva.");
+        }
         this.quantidade = quantidade;
     }
 
+    /**
+     * Retorna a data de saída do produto.
+     * @return a data de saída.
+     */
     public LocalDate getDataSaida() {
         return dataSaida;
     }
 
+    /**
+     * Define a data de saída do produto.
+     * A data de saída não pode ser nula.
+     * @param dataSaida a data de saída.
+     * @throws IllegalArgumentException se a data de saída for nula.
+     */
     public void setDataSaida(LocalDate dataSaida) {
+        if (dataSaida == null) {
+            throw new IllegalArgumentException("A data de saída não pode ser nula.");
+        }
         this.dataSaida = dataSaida;
     }
 
+    /**
+     * Retorna o motivo da saída.
+     * @return o motivo da saída.
+     */
     public String getMotivo() {
         return motivo;
     }
 
+    /**
+     * Define o motivo da saída.
+     * O motivo pode ser nulo ou vazio, mas se fornecido, deve ter no máximo 255 caracteres.
+     * @param motivo o motivo da saída.
+     * @throws IllegalArgumentException se o motivo exceder 255 caracteres.
+     */
     public void setMotivo(String motivo) {
+        if (motivo != null && motivo.length() > 255) {
+            throw new IllegalArgumentException("O motivo deve ter no máximo 255 caracteres.");
+        }
         this.motivo = motivo;
     }
 
+    /**
+     * Retorna o cliente associado à saída (opcional).
+     * @return o cliente.
+     */
     public String getCliente() {
         return cliente;
     }
 
+    /**
+     * Define o cliente associado à saída.
+     * O cliente pode ser nulo ou vazio, mas se fornecido, deve ter no máximo 255 caracteres.
+     * @param cliente o cliente.
+     * @throws IllegalArgumentException se o cliente exceder 255 caracteres.
+     */
     public void setCliente(String cliente) {
+        if (cliente != null && cliente.length() > 255) {
+            throw new IllegalArgumentException("O cliente deve ter no máximo 255 caracteres.");
+        }
         this.cliente = cliente;
     }
 
+    /**
+     * Retorna a observação associada a esta saída.
+     * @return a observação.
+     */
     public String getObservacao() {
         return observacao;
     }
 
+    /**
+     * Define a observação associada a esta saída.
+     * Não há restrições de validação para a observação neste momento.
+     * @param observacao a observação.
+     */
     public void setObservacao(String observacao) {
         this.observacao = observacao;
     }
