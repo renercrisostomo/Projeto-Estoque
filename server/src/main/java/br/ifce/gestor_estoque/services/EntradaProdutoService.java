@@ -5,12 +5,16 @@ import br.ifce.gestor_estoque.domain.estoque.Fornecedor;
 import br.ifce.gestor_estoque.domain.estoque.Produto;
 import br.ifce.gestor_estoque.dto.estoque.EntradaProdutoRequest;
 import br.ifce.gestor_estoque.dto.estoque.EntradaProdutoResponse;
+import br.ifce.gestor_estoque.events.EntradaProdutoAtualizadaEvent;
+import br.ifce.gestor_estoque.events.EntradaProdutoCriadaEvent;
+import br.ifce.gestor_estoque.events.EntradaProdutoExcluidaEvent;
 import br.ifce.gestor_estoque.exceptions.NotFoundException;
 import br.ifce.gestor_estoque.repositores.EntradaProdutoRepository;
 import br.ifce.gestor_estoque.repositores.FornecedorRepository;
 import br.ifce.gestor_estoque.repositores.ProdutoRepository;
 import br.ifce.gestor_estoque.services.interfaces.IEntradaProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +33,9 @@ public class EntradaProdutoService implements IEntradaProdutoService {
 
     @Autowired
     private FornecedorRepository fornecedorRepository;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Override
     public List<EntradaProdutoResponse> listarTodas() {
@@ -60,10 +67,11 @@ public class EntradaProdutoService implements IEntradaProdutoService {
         entradaProduto.setPrecoCusto(request.precoCusto);
         entradaProduto.setObservacao(request.observacao);
 
-        produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() + request.quantidade);
-        produtoRepository.save(produto);
+        // produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() + request.quantidade);
+        // produtoRepository.save(produto);
 
         EntradaProduto novaEntrada = entradaProdutoRepository.save(entradaProduto);
+        eventPublisher.publishEvent(new EntradaProdutoCriadaEvent(novaEntrada));
         return new EntradaProdutoResponse(novaEntrada);
     }
 
@@ -97,10 +105,11 @@ public class EntradaProdutoService implements IEntradaProdutoService {
         // Adicionar a nova quantidade ao estoque do produto novo/atualizado da entrada
         // Se o produto foi alterado, o produtoAntigoNaEntrada já teve seu estoque corrigido.
         // Agora, o produtoNovo (que pode ser o mesmo que o antigo ou um diferente) tem seu estoque atualizado.
-        produtoNovo.setQuantidadeEstoque(produtoNovo.getQuantidadeEstoque() + request.quantidade);
-        produtoRepository.save(produtoNovo);
+        // produtoNovo.setQuantidadeEstoque(produtoNovo.getQuantidadeEstoque() + request.quantidade);
+        // produtoRepository.save(produtoNovo);
 
         EntradaProduto entradaAtualizada = entradaProdutoRepository.save(entradaProduto);
+        eventPublisher.publishEvent(new EntradaProdutoAtualizadaEvent(entradaAtualizada)); // Pass the updated entity
         return new EntradaProdutoResponse(entradaAtualizada);
     }
 
@@ -110,13 +119,15 @@ public class EntradaProdutoService implements IEntradaProdutoService {
         EntradaProduto entradaProduto = entradaProdutoRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Entrada de produto com ID " + id + " não encontrada para exclusão."));
 
-        Produto produto = entradaProduto.getProduto();
-        int quantidadeNaEntrada = entradaProduto.getQuantidade();
+        // Produto produto = entradaProduto.getProduto();
+        // int quantidadeNaEntrada = entradaProduto.getQuantidade();
 
         // Reverter a quantidade da entrada do estoque do produto
-        produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - quantidadeNaEntrada);
-        produtoRepository.save(produto);
-
+        // produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - quantidadeNaEntrada);
+        // produtoRepository.save(produto);
+        
+        // Publish event BEFORE deleting so listeners can access the entity's state
+        eventPublisher.publishEvent(new EntradaProdutoExcluidaEvent(entradaProduto));
         entradaProdutoRepository.delete(entradaProduto);
     }
 }
