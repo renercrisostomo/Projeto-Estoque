@@ -8,6 +8,7 @@ import br.ifce.gestor_estoque.exceptions.CustomAuthenticationException;
 import br.ifce.gestor_estoque.exceptions.UserAlreadyExistsException;
 import br.ifce.gestor_estoque.infra.security.TokenService;
 import br.ifce.gestor_estoque.repositores.UserRepository;
+import br.ifce.gestor_estoque.services.interfaces.IAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,12 +18,13 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor // Lombok annotation for constructor injection
-public class AuthService {
+public class AuthService implements IAuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
 
+    @Override
     public ResponseDTO login(LoginRequestDTO body) {
         User user = userRepository.findByEmail(body.email())
                 .orElseThrow(() -> new CustomAuthenticationException("Usuário e/ou senha inválidos."));
@@ -35,6 +37,7 @@ public class AuthService {
         return new ResponseDTO(user.getName(), user.getEmail(), token);
     }
 
+    @Override
     @Transactional
     public ResponseDTO register(RegisterRequestDTO body) {
         Optional<User> userOptional = userRepository.findByEmail(body.email());

@@ -3,6 +3,7 @@ package br.ifce.gestor_estoque.services;
 import br.ifce.gestor_estoque.domain.estoque.Fornecedor;
 import br.ifce.gestor_estoque.exceptions.NotFoundException;
 import br.ifce.gestor_estoque.repositores.FornecedorRepository;
+import br.ifce.gestor_estoque.services.interfaces.IFornecedorService; // Import the interface
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,19 +12,22 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class FornecedorService {
+public class FornecedorService implements IFornecedorService { // Implement the interface
 
     @Autowired
     private FornecedorRepository fornecedorRepository;
 
+    @Override // Add Override annotation
     public List<Fornecedor> listarTodos() {
         return fornecedorRepository.findAll();
     }
 
+    @Override // Add Override annotation
     public Optional<Fornecedor> obterPorId(Long id) {
         return fornecedorRepository.findById(id);
     }
 
+    @Override // Add Override annotation
     @Transactional
     public Fornecedor criar(Fornecedor fornecedor) {
         // Aqui podem ser adicionadas validações de negócio, se necessário
@@ -31,6 +35,7 @@ public class FornecedorService {
         return fornecedorRepository.save(fornecedor);
     }
 
+    @Override // Add Override annotation
     @Transactional
     public Fornecedor atualizar(Long id, Fornecedor fornecedorAtualizado) {
         Fornecedor fornecedorExistente = fornecedorRepository.findById(id)
@@ -45,6 +50,7 @@ public class FornecedorService {
         return fornecedorRepository.save(fornecedorExistente);
     }
 
+    @Override // Add Override annotation
     @Transactional
     public boolean deletar(Long id) {
         Fornecedor fornecedor = fornecedorRepository.findById(id)

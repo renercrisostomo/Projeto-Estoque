@@ -8,6 +8,7 @@ import br.ifce.gestor_estoque.exceptions.BusinessException;
 import br.ifce.gestor_estoque.exceptions.NotFoundException;
 import br.ifce.gestor_estoque.repositores.ProdutoRepository;
 import br.ifce.gestor_estoque.repositores.SaidaProdutoRepository;
+import br.ifce.gestor_estoque.services.interfaces.ISaidaProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +18,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class SaidaProdutoService {
+public class SaidaProdutoService implements ISaidaProdutoService {
 
     @Autowired
     private SaidaProdutoRepository saidaProdutoRepository;
@@ -25,17 +26,20 @@ public class SaidaProdutoService {
     @Autowired
     private ProdutoRepository produtoRepository;
 
+    @Override
     public List<SaidaProdutoResponse> listarTodas() {
         return saidaProdutoRepository.findAll().stream()
                 .map(SaidaProdutoResponse::new)
                 .collect(Collectors.toList());
     }
 
+    @Override
     public Optional<SaidaProdutoResponse> getSaidaById(Long id) {
         return saidaProdutoRepository.findById(id)
                 .map(SaidaProdutoResponse::new);
     }
 
+    @Override
     @Transactional
     public SaidaProdutoResponse createSaida(SaidaProdutoRequest request) {
         Produto produto = produtoRepository.findById(request.produtoId)
@@ -60,6 +64,7 @@ public class SaidaProdutoService {
         return new SaidaProdutoResponse(novaSaida);
     }
 
+    @Override
     @Transactional
     public SaidaProdutoResponse updateSaida(Long id, SaidaProdutoRequest request) {
         SaidaProduto saidaProduto = saidaProdutoRepository.findById(id)
@@ -99,16 +104,19 @@ public class SaidaProdutoService {
         return new SaidaProdutoResponse(saidaAtualizada);
     }
 
+    @Override
     @Transactional
-    public boolean deleteSaida(Long id) {
+    public void deleteSaida(Long id) {
         SaidaProduto saidaProduto = saidaProdutoRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Saída de produto com ID " + id + " não encontrada para exclusão."));
+                .orElseThrow(() -> new NotFoundException("Saída de produto com ID " + id + " não encontrada para exclusão."));
 
         Produto produto = saidaProduto.getProduto();
-        produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() + saidaProduto.getQuantidade());
+        int quantidadeNaSaida = saidaProduto.getQuantidade();
+
+        // Adicionar a quantidade da saída de volta ao estoque do produto
+        produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() + quantidadeNaSaida);
         produtoRepository.save(produto);
 
         saidaProdutoRepository.delete(saidaProduto);
-        return true;
     }
 }

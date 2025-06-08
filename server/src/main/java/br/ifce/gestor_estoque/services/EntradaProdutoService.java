@@ -9,6 +9,7 @@ import br.ifce.gestor_estoque.exceptions.NotFoundException;
 import br.ifce.gestor_estoque.repositores.EntradaProdutoRepository;
 import br.ifce.gestor_estoque.repositores.FornecedorRepository;
 import br.ifce.gestor_estoque.repositores.ProdutoRepository;
+import br.ifce.gestor_estoque.services.interfaces.IEntradaProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class EntradaProdutoService {
+public class EntradaProdutoService implements IEntradaProdutoService {
 
     @Autowired
     private EntradaProdutoRepository entradaProdutoRepository;
@@ -29,17 +30,20 @@ public class EntradaProdutoService {
     @Autowired
     private FornecedorRepository fornecedorRepository;
 
+    @Override
     public List<EntradaProdutoResponse> listarTodas() {
         return entradaProdutoRepository.findAll().stream()
                 .map(EntradaProdutoResponse::new)
                 .collect(Collectors.toList());
     }
 
+    @Override
     public Optional<EntradaProdutoResponse> getEntradaById(Long id) {
         return entradaProdutoRepository.findById(id)
                 .map(EntradaProdutoResponse::new);
     }
 
+    @Override
     @Transactional
     public EntradaProdutoResponse createEntrada(EntradaProdutoRequest request) {
         Produto produto = produtoRepository.findById(request.produtoId)
@@ -63,6 +67,7 @@ public class EntradaProdutoService {
         return new EntradaProdutoResponse(novaEntrada);
     }
 
+    @Override
     @Transactional
     public EntradaProdutoResponse updateEntrada(Long id, EntradaProdutoRequest request) {
         EntradaProduto entradaProduto = entradaProdutoRepository.findById(id)
@@ -99,16 +104,19 @@ public class EntradaProdutoService {
         return new EntradaProdutoResponse(entradaAtualizada);
     }
 
+    @Override
     @Transactional
-    public boolean deleteEntrada(Long id) {
+    public void deleteEntrada(Long id) {
         EntradaProduto entradaProduto = entradaProdutoRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Entrada de produto com ID " + id + " não encontrada para exclusão."));
 
         Produto produto = entradaProduto.getProduto();
-        produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - entradaProduto.getQuantidade());
+        int quantidadeNaEntrada = entradaProduto.getQuantidade();
+
+        // Reverter a quantidade da entrada do estoque do produto
+        produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - quantidadeNaEntrada);
         produtoRepository.save(produto);
 
         entradaProdutoRepository.delete(entradaProduto);
-        return true;
     }
 }

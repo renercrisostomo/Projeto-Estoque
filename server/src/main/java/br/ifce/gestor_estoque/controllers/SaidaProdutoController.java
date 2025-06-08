@@ -65,11 +65,8 @@ public class SaidaProdutoController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteSaida(@PathVariable Long id) {
         try {
-            boolean deletado = saidaProdutoService.deleteSaida(id);
-            if (deletado) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageDTO("Recurso não encontrado ou não pôde ser excluído."));
+            saidaProdutoService.deleteSaida(id);
+            return ResponseEntity.noContent().build();
         } catch (NotFoundException e) {
              return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageDTO(e.getMessage()));
         }
