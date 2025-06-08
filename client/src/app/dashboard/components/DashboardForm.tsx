@@ -1,4 +1,3 @@
-// c:\Rener-SSD\github\projeto-estoque\client\src\app\dashboard\components\DashboardForm.tsx
 import React from 'react';
 import { Modal, Form, Space, Button, FormInstance } from 'antd';
 import type { FormProps } from 'antd';
@@ -26,7 +25,7 @@ export function DashboardForm<TFormData extends object, TEntityComKey extends ob
   modalTitle,
   formItems,
   submitButtonText,
-  initialValues, // Adicionada initialValues
+  initialValues,
 }: DashboardFormProps<TFormData, TEntityComKey>) {
   const handleFormFinish: FormProps<TFormData>['onFinish'] = async (values) => {
     await onFinish(values);
@@ -54,7 +53,7 @@ export function DashboardForm<TFormData extends object, TEntityComKey extends ob
       open={open}
       onCancel={onCancel}
       footer={null}
-      destroyOnClose // Mantém para limpar o estado do formulário ao fechar, especialmente se não for controlado externamente
+      destroyOnHidden
       // forceRender // Pode não ser necessário se usar useEffect para setFieldsValue
     >
       <Form<TFormData>
