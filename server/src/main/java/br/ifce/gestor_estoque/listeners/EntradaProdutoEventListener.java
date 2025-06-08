@@ -21,19 +21,20 @@ public class EntradaProdutoEventListener {
     public void handleEntradaProdutoCriada(EntradaProdutoCriadaEvent event) {
         Produto produto = event.getEntradaProduto().getProduto();
         int quantidade = event.getEntradaProduto().getQuantidade();
-        produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() + quantidade);
+        // Usando o método de domínio para entrada de estoque
+        produto.entradaEstoque(quantidade);
         produtoRepository.save(produto);
     }
 
     @EventListener
     @Transactional
     public void handleEntradaProdutoAtualizada(EntradaProdutoAtualizadaEvent event) {
-        // This event listener will handle the stock adjustment when an entrada is updated.
-        // The EntradaProdutoService will publish this event with the *new* state of EntradaProduto.
-        // It's assumed that the service has already reverted the stock from the *old* state of EntradaProduto.
+        // O EntradaProdutoService já reverteu o estoque do produto antigo.
+        // Este listener aplica a entrada ao novo produto (ou ao mesmo produto, se não mudou).
         Produto produtoNovo = event.getEntradaProduto().getProduto();
         int quantidadeNova = event.getEntradaProduto().getQuantidade();
-        produtoNovo.setQuantidadeEstoque(produtoNovo.getQuantidadeEstoque() + quantidadeNova);
+        // Usando o método de domínio para entrada de estoque
+        produtoNovo.entradaEstoque(quantidadeNova);
         produtoRepository.save(produtoNovo);
     }
 
@@ -42,7 +43,8 @@ public class EntradaProdutoEventListener {
     public void handleEntradaProdutoExcluida(EntradaProdutoExcluidaEvent event) {
         Produto produto = event.getEntradaProduto().getProduto();
         int quantidade = event.getEntradaProduto().getQuantidade();
-        produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - quantidade);
+        // Usando o método de domínio para saída de estoque (reversão da entrada)
+        produto.saidaEstoque(quantidade);
         produtoRepository.save(produto);
     }
 }

@@ -52,7 +52,8 @@ public class SaidaProdutoService implements ISaidaProdutoService {
         Produto produto = produtoRepository.findById(request.produtoId)
                 .orElseThrow(() -> new NotFoundException("Produto com ID " + request.produtoId + " não encontrado."));
 
-        if (produto.getQuantidadeEstoque() < request.quantidade) {
+        // Usando o método de domínio para verificar o estoque
+        if (!produto.temEstoqueSuficiente(request.quantidade)) {
             throw new BusinessException("Quantidade em estoque insuficiente para o produto ID " + request.produtoId + ". Estoque atual: " + produto.getQuantidadeEstoque());
         }
 
@@ -64,8 +65,8 @@ public class SaidaProdutoService implements ISaidaProdutoService {
         saidaProduto.setCliente(request.cliente);
         saidaProduto.setObservacao(request.observacao);
 
-        // produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - request.quantidade);
-        // produtoRepository.save(produto);
+        // A lógica de atualização de estoque foi movida para o SaidaProdutoEventListener
+        // e agora utiliza o método de domínio do Produto.
 
         SaidaProduto novaSaida = saidaProdutoRepository.save(saidaProduto);
         eventPublisher.publishEvent(new SaidaProdutoCriadaEvent(novaSaida));
@@ -86,35 +87,31 @@ public class SaidaProdutoService implements ISaidaProdutoService {
         int quantidadeNovaNaSaida = request.quantidade;
 
         // Reverter a quantidade antiga da saída do estoque do produto antigo
-        produtoAntigo.setQuantidadeEstoque(produtoAntigo.getQuantidadeEstoque() + quantidadeAntigaNaSaida);
+        // Usando o método de domínio para entrada de estoque
+        produtoAntigo.entradaEstoque(quantidadeAntigaNaSaida);
         if (!produtoAntigo.getId().equals(produtoNovo.getId())) {
             produtoRepository.save(produtoAntigo);
         } else {
-            // If the product is the same, the stock adjustment for the old quantity has already been made.
-            // We need to ensure this adjusted stock is saved before calculating new availability.
-            produtoRepository.save(produtoAntigo); // Save the state after reverting old quantity
+            produtoRepository.save(produtoAntigo); 
         }
 
-        // Recalculate available stock for the product to be associated with the *new* saida
-        // If product changed, produtoNovo is a fresh instance. If same product, it's produtoAntigo with stock reverted.
-        Produto produtoParaNovaSaida = produtoRepository.findById(produtoNovo.getId()).get(); // Re-fetch to get latest state
+        Produto produtoParaNovaSaida = produtoRepository.findById(produtoNovo.getId())
+            .orElseThrow(() -> new NotFoundException("Produto (para nova saída) com ID " + produtoNovo.getId() + " não encontrado após tentativa de atualização.")); // Re-fetch to get latest state
 
-        if (produtoParaNovaSaida.getQuantidadeEstoque() < quantidadeNovaNaSaida) {
-            // Restore original stock of produtoAntigo if we bailed out, to avoid inconsistent state
-            // This is complex; ideally, this check happens before any stock modification.
-            // For now, we proceed assuming the check is sufficient.
+        // Usando o método de domínio para verificar o estoque no produtoParaNovaSaida
+        if (!produtoParaNovaSaida.temEstoqueSuficiente(quantidadeNovaNaSaida)) {
             throw new BusinessException("Quantidade em estoque insuficiente para o produto ID " + request.produtoId + ". Estoque disponível: " + produtoParaNovaSaida.getQuantidadeEstoque());
         }
 
-        saidaProduto.setProduto(produtoNovo); // produtoNovo here is the one fetched by request.produtoId
+        saidaProduto.setProduto(produtoNovo); 
         saidaProduto.setQuantidade(quantidadeNovaNaSaida);
         saidaProduto.setDataSaida(request.dataSaida);
         saidaProduto.setMotivo(request.motivo);
         saidaProduto.setCliente(request.cliente);
         saidaProduto.setObservacao(request.observacao);
 
-        // produtoNovo.setQuantidadeEstoque(estoqueDisponivelParaNovaSaida - quantidadeNovaNaSaida);
-        // produtoRepository.save(produtoNovo);
+        // A lógica de atualização de estoque para o produtoNovo será tratada pelo listener
+        // que chamará produtoNovo.saidaEstoque(request.quantidade)
 
         SaidaProduto saidaAtualizada = saidaProdutoRepository.save(saidaProduto);
         eventPublisher.publishEvent(new SaidaProdutoAtualizadaEvent(saidaAtualizada));
@@ -127,12 +124,8 @@ public class SaidaProdutoService implements ISaidaProdutoService {
         SaidaProduto saidaProduto = saidaProdutoRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Saída de produto com ID " + id + " não encontrada para exclusão."));
 
-        // Produto produto = saidaProduto.getProduto();
-        // int quantidadeNaSaida = saidaProduto.getQuantidade();
-
-        // Adicionar a quantidade da saída de volta ao estoque do produto
-        // produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() + quantidadeNaSaida);
-        // produtoRepository.save(produto);
+        // A lógica de atualização de estoque (reversão) será tratada pelo listener
+        // que chamará produto.entradaEstoque(quantidadeNaSaida)
 
         eventPublisher.publishEvent(new SaidaProdutoExcluidaEvent(saidaProduto));
         saidaProdutoRepository.delete(saidaProduto);

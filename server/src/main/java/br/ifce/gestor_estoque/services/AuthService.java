@@ -10,7 +10,6 @@ import br.ifce.gestor_estoque.infra.security.TokenService;
 import br.ifce.gestor_estoque.repositores.UserRepository;
 import br.ifce.gestor_estoque.services.interfaces.IAuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +20,6 @@ import java.util.Optional;
 public class AuthService implements IAuthService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
 
     @Override
@@ -29,7 +27,7 @@ public class AuthService implements IAuthService {
         User user = userRepository.findByEmail(body.email())
                 .orElseThrow(() -> new CustomAuthenticationException("Usuário e/ou senha inválidos."));
 
-        if (!passwordEncoder.matches(body.password(), user.getPassword())) {
+        if (!user.getPassword().equals(body.password())) {
             throw new CustomAuthenticationException("Usuário e/ou senha inválidos.");
         }
 
@@ -47,7 +45,8 @@ public class AuthService implements IAuthService {
         }
 
         User newUser = new User();
-        newUser.setPassword(passwordEncoder.encode(body.password()));
+        // A senha agora é hashed automaticamente pelo setter em User.java
+        newUser.setPassword(body.password()); 
         newUser.setEmail(body.email());
         newUser.setName(body.name());
         userRepository.save(newUser);

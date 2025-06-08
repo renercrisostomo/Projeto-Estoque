@@ -14,6 +14,7 @@ public class EntradaProdutoResponse {
     public LocalDate dataEntrada;
     public BigDecimal precoCusto;
     public String observacao;
+    public BigDecimal valorTotalEntrada; // Novo campo
 
     public EntradaProdutoResponse(EntradaProduto entradaProduto) {
         this.id = entradaProduto.getId();
@@ -25,5 +26,6 @@ public class EntradaProdutoResponse {
         this.dataEntrada = entradaProduto.getDataEntrada();
         this.precoCusto = entradaProduto.getPrecoCusto();
         this.observacao = entradaProduto.getObservacao();
+        this.valorTotalEntrada = entradaProduto.calcularValorTotalEntrada(); // Usando o método de domínio
     }
 }

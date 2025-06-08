@@ -21,19 +21,20 @@ public class SaidaProdutoEventListener {
     public void handleSaidaProdutoCriada(SaidaProdutoCriadaEvent event) {
         Produto produto = event.getSaidaProduto().getProduto();
         int quantidade = event.getSaidaProduto().getQuantidade();
-        produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - quantidade);
+        // Usando o método de domínio para saída de estoque
+        produto.saidaEstoque(quantidade);
         produtoRepository.save(produto);
     }
 
     @EventListener
     @Transactional
     public void handleSaidaProdutoAtualizada(SaidaProdutoAtualizadaEvent event) {
-        // This event listener will handle the stock adjustment when a saida is updated.
-        // The SaidaProdutoService will publish this event with the *new* state of SaidaProduto.
-        // It's assumed that the service has already reverted the stock from the *old* state of SaidaProduto.
+        // O SaidaProdutoService já reverteu o estoque do produto antigo.
+        // Este listener aplica a saída ao novo produto (ou ao mesmo produto, se não mudou).
         Produto produtoNovo = event.getSaidaProduto().getProduto();
         int quantidadeNova = event.getSaidaProduto().getQuantidade();
-        produtoNovo.setQuantidadeEstoque(produtoNovo.getQuantidadeEstoque() - quantidadeNova);
+        // Usando o método de domínio para saída de estoque
+        produtoNovo.saidaEstoque(quantidadeNova);
         produtoRepository.save(produtoNovo);
     }
 
@@ -42,7 +43,8 @@ public class SaidaProdutoEventListener {
     public void handleSaidaProdutoExcluida(SaidaProdutoExcluidaEvent event) {
         Produto produto = event.getSaidaProduto().getProduto();
         int quantidade = event.getSaidaProduto().getQuantidade();
-        produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() + quantidade);
+        // Usando o método de domínio para entrada de estoque (reversão da saída)
+        produto.entradaEstoque(quantidade);
         produtoRepository.save(produto);
     }
 }

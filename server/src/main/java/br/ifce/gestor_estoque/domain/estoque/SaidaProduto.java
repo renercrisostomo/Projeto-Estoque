@@ -149,7 +149,7 @@ public class SaidaProduto {
     /**
      * Define o cliente associado à saída.
      * O cliente pode ser nulo ou vazio, mas se fornecido, deve ter no máximo 255 caracteres.
-     * @param cliente o cliente.
+     * @param cliente o cliente associado à saída.
      * @throws IllegalArgumentException se o cliente exceder 255 caracteres.
      */
     public void setCliente(String cliente) {
@@ -160,7 +160,7 @@ public class SaidaProduto {
     }
 
     /**
-     * Retorna a observação associada a esta saída.
+     * Retorna a observação sobre a saída.
      * @return a observação.
      */
     public String getObservacao() {
@@ -168,11 +168,33 @@ public class SaidaProduto {
     }
 
     /**
-     * Define a observação associada a esta saída.
-     * Não há restrições de validação para a observação neste momento.
+     * Define uma observação sobre a saída.
      * @param observacao a observação.
      */
     public void setObservacao(String observacao) {
         this.observacao = observacao;
+    }
+
+    // Comportamentos
+
+    /**
+     * Verifica se a saída é para um cliente específico.
+     * @param nomeCliente o nome do cliente a ser verificado.
+     * @return true se a saída for para o cliente especificado, false caso contrário.
+     */
+    public boolean isSaidaParaCliente(String nomeCliente) {
+        return this.cliente != null && this.cliente.equalsIgnoreCase(nomeCliente);
+    }
+
+    /**
+     * Registra um motivo de ajuste para a saída.
+     * Este método pode ser usado para padronizar motivos de ajuste de estoque.
+     * @param motivoAjuste O motivo do ajuste.
+     */
+    public void registrarMotivoAjuste(String motivoAjuste) {
+        if (motivoAjuste == null || motivoAjuste.trim().isEmpty()) {
+            throw new IllegalArgumentException("O motivo de ajuste não pode ser nulo ou vazio.");
+        }
+        this.motivo = "Ajuste: " + motivoAjuste;
     }
 }

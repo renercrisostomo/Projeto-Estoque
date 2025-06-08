@@ -139,6 +139,38 @@ public class Fornecedor {
         if (contatoTelefone != null && contatoTelefone.length() > 50) {
             throw new IllegalArgumentException("O telefone do contato deve ter no máximo 50 caracteres.");
         }
+        // Adiciona validação para garantir que o telefone contém apenas números e caracteres válidos (ex: +, -, (, ))
+        if (contatoTelefone != null && !contatoTelefone.matches("^[0-9()\\s+-]*$")) {
+            throw new IllegalArgumentException("O telefone do contato contém caracteres inválidos.");
+        }
         this.contatoTelefone = contatoTelefone;
+    }
+
+    // Comportamentos
+
+    /**
+     * Verifica se o fornecedor possui informações de contato completas (nome, email e telefone).
+     * @return true se todas as informações de contato estiverem presentes, false caso contrário.
+     */
+    public boolean hasInformacoesContatoCompletas() {
+        return this.contatoNome != null && !this.contatoNome.trim().isEmpty() &&
+               this.contatoEmail != null && !this.contatoEmail.trim().isEmpty() &&
+               this.contatoTelefone != null && !this.contatoTelefone.trim().isEmpty();
+    }
+
+    /**
+     * Formata o nome do contato para exibição (Ex: "Nome Sobrenome" -> "Nome S.").
+     * Retorna o nome original se não houver sobrenome.
+     * @return O nome do contato formatado ou o nome original.
+     */
+    public String getNomeContatoFormatado() {
+        if (this.contatoNome == null || this.contatoNome.trim().isEmpty()) {
+            return "";
+        }
+        String[] partesNome = this.contatoNome.trim().split("\\s+");
+        if (partesNome.length > 1) {
+            return partesNome[0] + " " + partesNome[partesNome.length - 1].charAt(0) + ".";
+        }
+        return this.contatoNome;
     }
 }

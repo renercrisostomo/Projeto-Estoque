@@ -150,8 +150,8 @@ public class EntradaProduto {
 
     /**
      * Define o preço de custo unitário do produto no momento da entrada.
-     * O preço de custo pode ser nulo (se não aplicável), mas se fornecido, não deve ser negativo.
-     * @param precoCusto o preço de custo.
+     * O preço de custo pode ser nulo ou deve ser não negativo.
+     * @param precoCusto o preço de custo unitário.
      * @throws IllegalArgumentException se o preço de custo for negativo.
      */
     public void setPrecoCusto(BigDecimal precoCusto) {
@@ -162,7 +162,7 @@ public class EntradaProduto {
     }
 
     /**
-     * Retorna a observação associada a esta entrada.
+     * Retorna a observação sobre a entrada.
      * @return a observação.
      */
     public String getObservacao() {
@@ -170,11 +170,25 @@ public class EntradaProduto {
     }
 
     /**
-     * Define a observação associada a esta entrada.
-     * Não há restrições de validação para a observação neste momento.
+     * Define uma observação sobre a entrada.
      * @param observacao a observação.
      */
     public void setObservacao(String observacao) {
         this.observacao = observacao;
+    }
+
+    // Comportamentos
+
+    /**
+     * Calcula o valor total da entrada do produto.
+     * O valor total é calculado como quantidade * precoCusto.
+     * Retorna BigDecimal.ZERO se precoCusto ou quantidade forem nulos ou se quantidade for não positiva.
+     * @return o valor total da entrada.
+     */
+    public BigDecimal calcularValorTotalEntrada() {
+        if (this.precoCusto == null || this.quantidade == null || this.quantidade <= 0) {
+            return BigDecimal.ZERO;
+        }
+        return this.precoCusto.multiply(new BigDecimal(this.quantidade));
     }
 }

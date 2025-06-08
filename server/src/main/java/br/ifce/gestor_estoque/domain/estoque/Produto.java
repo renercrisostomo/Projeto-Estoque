@@ -170,4 +170,46 @@ public class Produto {
         }
         this.unidadeMedida = unidadeMedida;
     }
+
+    // Comportamentos de Domínio
+
+    /**
+     * Verifica se há estoque suficiente para uma determinada quantidade.
+     * @param quantidadeDesejada A quantidade a ser verificada.
+     * @return true se houver estoque suficiente, false caso contrário.
+     */
+    public boolean temEstoqueSuficiente(int quantidadeDesejada) {
+        if (quantidadeDesejada <= 0) {
+            throw new IllegalArgumentException("A quantidade desejada para verificação deve ser positiva.");
+        }
+        return this.quantidadeEstoque >= quantidadeDesejada;
+    }
+
+    /**
+     * Adiciona uma quantidade ao estoque do produto.
+     * @param quantidadeAdicionar A quantidade a ser adicionada.
+     * @throws IllegalArgumentException se a quantidade a adicionar for menor ou igual a zero.
+     */
+    public void entradaEstoque(int quantidadeAdicionar) {
+        if (quantidadeAdicionar <= 0) {
+            throw new IllegalArgumentException("A quantidade a adicionar ao estoque deve ser positiva.");
+        }
+        this.setQuantidadeEstoque(this.quantidadeEstoque + quantidadeAdicionar);
+    }
+
+    /**
+     * Remove uma quantidade do estoque do produto.
+     * @param quantidadeRemover A quantidade a ser removida.
+     * @throws IllegalArgumentException se a quantidade a remover for menor ou igual a zero,
+     *                                ou se não houver estoque suficiente.
+     */
+    public void saidaEstoque(int quantidadeRemover) {
+        if (quantidadeRemover <= 0) {
+            throw new IllegalArgumentException("A quantidade a remover do estoque deve ser positiva.");
+        }
+        if (!temEstoqueSuficiente(quantidadeRemover)) {
+            throw new IllegalArgumentException("Estoque insuficiente para remover a quantidade solicitada. Estoque atual: " + this.quantidadeEstoque + ", Solicitado: " + quantidadeRemover);
+        }
+        this.setQuantidadeEstoque(this.quantidadeEstoque - quantidadeRemover);
+    }
 }

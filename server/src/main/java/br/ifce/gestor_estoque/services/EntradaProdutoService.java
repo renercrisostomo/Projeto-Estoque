@@ -67,8 +67,8 @@ public class EntradaProdutoService implements IEntradaProdutoService {
         entradaProduto.setPrecoCusto(request.precoCusto);
         entradaProduto.setObservacao(request.observacao);
 
-        // produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() + request.quantidade);
-        // produtoRepository.save(produto);
+        // A lógica de atualização de estoque foi movida para o ProdutoEventListener
+        // e agora utiliza o método de domínio do Produto.
 
         EntradaProduto novaEntrada = entradaProdutoRepository.save(entradaProduto);
         eventPublisher.publishEvent(new EntradaProdutoCriadaEvent(novaEntrada));
@@ -91,7 +91,8 @@ public class EntradaProdutoService implements IEntradaProdutoService {
         int quantidadeAntigaNaEntrada = entradaProduto.getQuantidade();
 
         // Reverter a quantidade antiga do estoque do produto antigo da entrada
-        produtoAntigoNaEntrada.setQuantidadeEstoque(produtoAntigoNaEntrada.getQuantidadeEstoque() - quantidadeAntigaNaEntrada);
+        // Usando o método de domínio para saída de estoque
+        produtoAntigoNaEntrada.saidaEstoque(quantidadeAntigaNaEntrada);
         produtoRepository.save(produtoAntigoNaEntrada);
 
         // Atualizar dados da entrada
@@ -102,11 +103,8 @@ public class EntradaProdutoService implements IEntradaProdutoService {
         entradaProduto.setPrecoCusto(request.precoCusto);
         entradaProduto.setObservacao(request.observacao);
 
-        // Adicionar a nova quantidade ao estoque do produto novo/atualizado da entrada
-        // Se o produto foi alterado, o produtoAntigoNaEntrada já teve seu estoque corrigido.
-        // Agora, o produtoNovo (que pode ser o mesmo que o antigo ou um diferente) tem seu estoque atualizado.
-        // produtoNovo.setQuantidadeEstoque(produtoNovo.getQuantidadeEstoque() + request.quantidade);
-        // produtoRepository.save(produtoNovo);
+        // A lógica de atualização de estoque para o produtoNovo será tratada pelo listener
+        // que chamará produtoNovo.entradaEstoque(request.quantidade)
 
         EntradaProduto entradaAtualizada = entradaProdutoRepository.save(entradaProduto);
         eventPublisher.publishEvent(new EntradaProdutoAtualizadaEvent(entradaAtualizada)); // Pass the updated entity
@@ -119,14 +117,9 @@ public class EntradaProdutoService implements IEntradaProdutoService {
         EntradaProduto entradaProduto = entradaProdutoRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Entrada de produto com ID " + id + " não encontrada para exclusão."));
 
-        // Produto produto = entradaProduto.getProduto();
-        // int quantidadeNaEntrada = entradaProduto.getQuantidade();
-
-        // Reverter a quantidade da entrada do estoque do produto
-        // produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - quantidadeNaEntrada);
-        // produtoRepository.save(produto);
+        // A lógica de atualização de estoque (reversão) será tratada pelo listener
+        // que chamará produto.saidaEstoque(quantidadeNaEntrada)
         
-        // Publish event BEFORE deleting so listeners can access the entity's state
         eventPublisher.publishEvent(new EntradaProdutoExcluidaEvent(entradaProduto));
         entradaProdutoRepository.delete(entradaProduto);
     }
