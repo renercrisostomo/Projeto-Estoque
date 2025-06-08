@@ -96,11 +96,11 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         </div>
         <Menu theme="dark" defaultSelectedKeys={[pathname]} defaultOpenKeys={defaultOpenKeys} mode="inline" items={menuItems} onClick={onMenuClick} /> 
       </Sider>
-      <Layout>
-        <Header style={{ padding: '0 16px', background: colorBgContainer }}>
+      <Layout style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <Header style={{ padding: '0 16px', background: colorBgContainer, flexShrink: 0 }}>
           <span className="text-lg font-semibold">{title}</span> {/* Titulo dinamico conforme pagina */}
         </Header>
-        <Content style={{ margin: '0 16px' }}>
+        <Content style={{ margin: '0 16px', overflowY: 'auto', flexGrow: 1 }}>
           <Breadcrumb style={{ margin: '16px 0' }}>
             {/* Gerar breadcrumbs dinamicamente com base no pathname */}
             <Breadcrumb.Item><Link href="/dashboard">Dashboard</Link></Breadcrumb.Item>
@@ -121,7 +121,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
             {children}
           </div>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>
+        <Footer style={{ textAlign: 'center', flexShrink: 0 }}> {/* MODIFIED: Prevent footer from shrinking */}
           Gestor de Estoque ©{new Date().getFullYear()} Criado com Ant Design e Next.js
         </Footer>
       </Layout>
