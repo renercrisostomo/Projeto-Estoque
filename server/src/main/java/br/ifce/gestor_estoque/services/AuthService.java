@@ -27,7 +27,7 @@ public class AuthService implements IAuthService {
         User user = userRepository.findByEmail(body.email())
                 .orElseThrow(() -> new CustomAuthenticationException("Usuário e/ou senha inválidos."));
 
-        if (!user.getPassword().equals(body.password())) {
+        if (!user.checkPassword(body.password())) {
             throw new CustomAuthenticationException("Usuário e/ou senha inválidos.");
         }
 
