@@ -8,11 +8,14 @@ import br.ifce.gestor_estoque.dto.estoque.EntradaProdutoResponse;
 import br.ifce.gestor_estoque.events.EntradaProdutoAtualizadaEvent;
 import br.ifce.gestor_estoque.events.EntradaProdutoCriadaEvent;
 import br.ifce.gestor_estoque.events.EntradaProdutoExcluidaEvent;
+import br.ifce.gestor_estoque.exceptions.BusinessException;
 import br.ifce.gestor_estoque.exceptions.NotFoundException;
 import br.ifce.gestor_estoque.repositores.EntradaProdutoRepository;
 import br.ifce.gestor_estoque.repositores.FornecedorRepository;
 import br.ifce.gestor_estoque.repositores.ProdutoRepository;
 import br.ifce.gestor_estoque.services.interfaces.IEntradaProdutoService;
+import br.ifce.gestor_estoque.strategy.ValidacaoEntradaStrategy;
+import br.ifce.gestor_estoque.strategy.ValidacaoStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -36,6 +39,14 @@ public class EntradaProdutoService implements IEntradaProdutoService {
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
+
+    private final ValidacaoStrategy<EntradaProduto> validacaoEntradaStrategy;
+
+    @Autowired
+    public EntradaProdutoService(ApplicationEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+        this.validacaoEntradaStrategy = new ValidacaoEntradaStrategy();
+    }
 
     @Override
     public List<EntradaProdutoResponse> listarTodas() {
@@ -67,6 +78,12 @@ public class EntradaProdutoService implements IEntradaProdutoService {
         entradaProduto.setPrecoCusto(request.precoCusto);
         entradaProduto.setObservacao(request.observacao);
 
+        try {
+            validacaoEntradaStrategy.validar(entradaProduto);
+        } catch (Exception e) {
+            throw new BusinessException(e.getMessage());
+        }
+
         // A lógica de atualização de estoque foi movida para o ProdutoEventListener
         // e agora utiliza o método de domínio do Produto.
 
@@ -87,15 +104,11 @@ public class EntradaProdutoService implements IEntradaProdutoService {
         Fornecedor fornecedorNovo = fornecedorRepository.findById(request.fornecedorId)
                 .orElseThrow(() -> new NotFoundException("Fornecedor com ID " + request.fornecedorId + " não encontrado."));
 
+        // ... Store old values before making changes for event or other logic ...
         Produto produtoAntigoNaEntrada = entradaProduto.getProduto();
         int quantidadeAntigaNaEntrada = entradaProduto.getQuantidade();
 
-        // Reverter a quantidade antiga do estoque do produto antigo da entrada
-        // Usando o método de domínio para saída de estoque
-        produtoAntigoNaEntrada.saidaEstoque(quantidadeAntigaNaEntrada);
-        produtoRepository.save(produtoAntigoNaEntrada);
-
-        // Atualizar dados da entrada
+        // Update entradaProduto fields
         entradaProduto.setProduto(produtoNovo);
         entradaProduto.setFornecedor(fornecedorNovo);
         entradaProduto.setQuantidade(request.quantidade);
@@ -103,8 +116,17 @@ public class EntradaProdutoService implements IEntradaProdutoService {
         entradaProduto.setPrecoCusto(request.precoCusto);
         entradaProduto.setObservacao(request.observacao);
 
-        // A lógica de atualização de estoque para o produtoNovo será tratada pelo listener
-        // que chamará produtoNovo.entradaEstoque(request.quantidade)
+        try {
+            validacaoEntradaStrategy.validar(entradaProduto);
+        } catch (Exception e) {
+            throw new BusinessException(e.getMessage());
+        }
+        
+        // Logic to revert old stock and apply new stock (potentially moved to listeners or kept here if simple)
+        // For simplicity, assuming direct manipulation here, but listeners are better for decoupling
+        produtoAntigoNaEntrada.saidaEstoque(quantidadeAntigaNaEntrada);
+        produtoRepository.save(produtoAntigoNaEntrada); 
+        // Note: If produtoNovo is the same as produtoAntigoNaEntrada, this save might be redundant or need careful handling
 
         EntradaProduto entradaAtualizada = entradaProdutoRepository.save(entradaProduto);
         eventPublisher.publishEvent(new EntradaProdutoAtualizadaEvent(entradaAtualizada)); // Pass the updated entity

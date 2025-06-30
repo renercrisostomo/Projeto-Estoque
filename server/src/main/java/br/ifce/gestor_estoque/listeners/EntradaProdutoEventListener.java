@@ -21,7 +21,6 @@ public class EntradaProdutoEventListener {
     public void handleEntradaProdutoCriada(EntradaProdutoCriadaEvent event) {
         Produto produto = event.getEntradaProduto().getProduto();
         int quantidade = event.getEntradaProduto().getQuantidade();
-        // Usando o método de domínio para entrada de estoque
         produto.entradaEstoque(quantidade);
         produtoRepository.save(produto);
     }
@@ -29,11 +28,8 @@ public class EntradaProdutoEventListener {
     @EventListener
     @Transactional
     public void handleEntradaProdutoAtualizada(EntradaProdutoAtualizadaEvent event) {
-        // O EntradaProdutoService já reverteu o estoque do produto antigo.
-        // Este listener aplica a entrada ao novo produto (ou ao mesmo produto, se não mudou).
         Produto produtoNovo = event.getEntradaProduto().getProduto();
         int quantidadeNova = event.getEntradaProduto().getQuantidade();
-        // Usando o método de domínio para entrada de estoque
         produtoNovo.entradaEstoque(quantidadeNova);
         produtoRepository.save(produtoNovo);
     }
@@ -43,7 +39,6 @@ public class EntradaProdutoEventListener {
     public void handleEntradaProdutoExcluida(EntradaProdutoExcluidaEvent event) {
         Produto produto = event.getEntradaProduto().getProduto();
         int quantidade = event.getEntradaProduto().getQuantidade();
-        // Usando o método de domínio para saída de estoque (reversão da entrada)
         produto.saidaEstoque(quantidade);
         produtoRepository.save(produto);
     }

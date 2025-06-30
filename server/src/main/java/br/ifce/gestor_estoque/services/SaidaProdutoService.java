@@ -12,6 +12,8 @@ import br.ifce.gestor_estoque.exceptions.NotFoundException;
 import br.ifce.gestor_estoque.repositores.ProdutoRepository;
 import br.ifce.gestor_estoque.repositores.SaidaProdutoRepository;
 import br.ifce.gestor_estoque.services.interfaces.ISaidaProdutoService;
+import br.ifce.gestor_estoque.strategy.ValidacaoSaidaStrategy;
+import br.ifce.gestor_estoque.strategy.ValidacaoStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,14 @@ public class SaidaProdutoService implements ISaidaProdutoService {
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
+    private final ValidacaoStrategy<SaidaProduto> validacaoSaidaStrategy;
+
+    @Autowired
+    public SaidaProdutoService(ApplicationEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+        this.validacaoSaidaStrategy = new ValidacaoSaidaStrategy();
+    }
+
     @Override
     public List<SaidaProdutoResponse> listarTodas() {
         return saidaProdutoRepository.findAll().stream()
@@ -52,11 +62,6 @@ public class SaidaProdutoService implements ISaidaProdutoService {
         Produto produto = produtoRepository.findById(request.produtoId)
                 .orElseThrow(() -> new NotFoundException("Produto com ID " + request.produtoId + " não encontrado."));
 
-        // Usando o método de domínio para verificar o estoque
-        if (!produto.temEstoqueSuficiente(request.quantidade)) {
-            throw new BusinessException("Quantidade em estoque insuficiente para o produto ID " + request.produtoId + ". Estoque atual: " + produto.getQuantidadeEstoque());
-        }
-
         SaidaProduto saidaProduto = new SaidaProduto();
         saidaProduto.setProduto(produto);
         saidaProduto.setQuantidade(request.quantidade);
@@ -64,6 +69,12 @@ public class SaidaProdutoService implements ISaidaProdutoService {
         saidaProduto.setMotivo(request.motivo);
         saidaProduto.setCliente(request.cliente);
         saidaProduto.setObservacao(request.observacao);
+
+        try {
+            validacaoSaidaStrategy.validar(saidaProduto);
+        } catch (Exception e) {
+            throw new BusinessException(e.getMessage());
+        }
 
         // A lógica de atualização de estoque foi movida para o SaidaProdutoEventListener
         // e agora utiliza o método de domínio do Produto.
@@ -82,33 +93,43 @@ public class SaidaProdutoService implements ISaidaProdutoService {
         Produto produtoNovo = produtoRepository.findById(request.produtoId)
                 .orElseThrow(() -> new NotFoundException("Produto com ID " + request.produtoId + " não encontrado."));
 
+        // ... Store old values ...
         Produto produtoAntigo = saidaProduto.getProduto();
         int quantidadeAntigaNaSaida = saidaProduto.getQuantidade();
-        int quantidadeNovaNaSaida = request.quantidade;
 
-        // Reverter a quantidade antiga da saída do estoque do produto antigo
-        // Usando o método de domínio para entrada de estoque
-        produtoAntigo.entradaEstoque(quantidadeAntigaNaSaida);
-        if (!produtoAntigo.getId().equals(produtoNovo.getId())) {
-            produtoRepository.save(produtoAntigo);
-        } else {
-            produtoRepository.save(produtoAntigo); 
-        }
-
-        Produto produtoParaNovaSaida = produtoRepository.findById(produtoNovo.getId())
-            .orElseThrow(() -> new NotFoundException("Produto (para nova saída) com ID " + produtoNovo.getId() + " não encontrado após tentativa de atualização.")); // Re-fetch to get latest state
-
-        // Usando o método de domínio para verificar o estoque no produtoParaNovaSaida
-        if (!produtoParaNovaSaida.temEstoqueSuficiente(quantidadeNovaNaSaida)) {
-            throw new BusinessException("Quantidade em estoque insuficiente para o produto ID " + request.produtoId + ". Estoque disponível: " + produtoParaNovaSaida.getQuantidadeEstoque());
-        }
-
-        saidaProduto.setProduto(produtoNovo); 
-        saidaProduto.setQuantidade(quantidadeNovaNaSaida);
+        // Update saidaProduto fields
+        saidaProduto.setProduto(produtoNovo);
+        saidaProduto.setQuantidade(request.quantidade);
         saidaProduto.setDataSaida(request.dataSaida);
         saidaProduto.setMotivo(request.motivo);
         saidaProduto.setCliente(request.cliente);
         saidaProduto.setObservacao(request.observacao);
+
+        try {
+            // Validate before attempting to fetch the product for stock check to avoid unnecessary DB call if basic validation fails
+            validacaoSaidaStrategy.validar(saidaProduto); 
+        } catch (Exception e) {
+            throw new BusinessException(e.getMessage());
+        }
+
+        // Logic to revert old stock and apply new stock (potentially moved to listeners or kept here if simple)
+        produtoAntigo.entradaEstoque(quantidadeAntigaNaSaida);
+        if (!produtoAntigo.getId().equals(produtoNovo.getId())) {
+            produtoRepository.save(produtoAntigo); 
+        } else {
+             // If it's the same product, the earlier entradaEstoque call modified it, so save it.
+            produtoRepository.save(produtoAntigo); 
+        }
+        
+        // Re-fetch productParaNovaSaida to ensure we have the latest state after potential save of produtoAntigo
+        Produto produtoParaNovaSaida = produtoRepository.findById(produtoNovo.getId())
+           .orElseThrow(() -> new NotFoundException("Produto (para nova saída) com ID " + produtoNovo.getId() + " não encontrado após tentativa de atualização."));
+
+        // This check was part of the original ValidacaoSaidaStrategy, 
+        // but since stock levels change, it's re-evaluated here after reverting old stock.
+        if (!produtoParaNovaSaida.temEstoqueSuficiente(request.quantidade)) {
+            throw new BusinessException("Quantidade em estoque insuficiente para o produto ID " + request.produtoId + ". Estoque disponível: " + produtoParaNovaSaida.getQuantidadeEstoque());
+        }
 
         // A lógica de atualização de estoque para o produtoNovo será tratada pelo listener
         // que chamará produtoNovo.saidaEstoque(request.quantidade)
