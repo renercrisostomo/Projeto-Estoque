@@ -59,7 +59,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
       getItem(<Link href="/dashboard/entradas">Entradas</Link>, '/dashboard/entradas', <ArrowDownOutlined />),
       getItem(<Link href="/dashboard/saidas">Saídas</Link>, '/dashboard/saidas', <ArrowUpOutlined />),
     ]),
-    getItem('Relatórios', 'reports', <FileTextOutlined />),
+    getItem(<Link href="/dashboard/relatorios">Relatórios</Link>, '/dashboard/relatorios', <FileTextOutlined />),
     getItem('Sair', 'logout', <LogoutOutlined />, undefined), 
   ];
 
@@ -108,6 +108,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
             {pathname.startsWith('/dashboard/fornecedores') && <Breadcrumb.Item><Link href="/dashboard/fornecedores">Fornecedores</Link></Breadcrumb.Item>}
             {pathname.startsWith('/dashboard/entradas') && <Breadcrumb.Item><Link href="/dashboard/entradas">Entradas</Link></Breadcrumb.Item>}
             {pathname.startsWith('/dashboard/saidas') && <Breadcrumb.Item><Link href="/dashboard/saidas">Saídas</Link></Breadcrumb.Item>}
+            {pathname.startsWith('/dashboard/relatorios') && <Breadcrumb.Item><Link href="/dashboard/relatorios">Relatórios</Link></Breadcrumb.Item>}
             {/* Adicionar mais conforme necessário */}
           </Breadcrumb>
           <div
