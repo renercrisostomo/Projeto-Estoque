@@ -54,6 +54,7 @@ Antes de começar, certifique-se de ter o seguinte instalado:
    ```plaintext
    # client/.env.local
    NEXT_PUBLIC_API_URL=http://localhost:8080
+   NEXT_PUBLIC_GEMINI_API_KEY=sua_chave_api_gemini
    ```
 
 3. Instale as dependências:
