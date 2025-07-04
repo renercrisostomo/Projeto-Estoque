@@ -26,7 +26,7 @@ Antes de começar, certifique-se de ter o seguinte instalado:
    cd server
    ```
 
-2. Crie um arquivo `.env` na raiz do diretório `server` com as seguintes variáveis de ambiente:
+2. Crie um arquivo de ambiente local `.env`:
 
    ```env
    # Configurações do banco de dados
@@ -51,8 +51,7 @@ Antes de começar, certifique-se de ter o seguinte instalado:
 
 2. Crie um arquivo de ambiente local `.env.local`:
 
-   ```plaintext
-   # client/.env.local
+   ```env
    NEXT_PUBLIC_API_URL=http://localhost:8080
    NEXT_PUBLIC_GEMINI_API_KEY=sua_chave_api_gemini
    ```
