@@ -114,7 +114,7 @@ public class Fornecedor {
             throw new IllegalArgumentException("O email do contato deve ter no máximo 255 caracteres.");
         }
         // Regex for basic email validation
-        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\\\.)+[a-zA-Z]{2,7}$";
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
         if (!contatoEmail.matches(emailRegex)) {
             throw new IllegalArgumentException("Formato de email inválido para o contato.");
         }

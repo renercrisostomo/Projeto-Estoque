@@ -74,24 +74,38 @@ public class DataInitializer implements CommandLineRunner {
             p1.setNome("Notebook Gamer XYZ");
             p1.setDescricao("Notebook de alta performance para jogos");
             p1.setPreco(new BigDecimal("7500.00"));
-            p1.setQuantidadeEstoque(0); // Inicializa com 0, entradas irão popular
+            p1.setQuantidadeEstoque(75);
             p1.setUnidadeMedida("UN");
 
             Produto p2 = new Produto();
             p2.setNome("Mouse Sem Fio Ergonômico");
             p2.setDescricao("Mouse sem fio com design ergonômico para maior conforto");
             p2.setPreco(new BigDecimal("120.50"));
-            p2.setQuantidadeEstoque(0);
+            p2.setQuantidadeEstoque(120);
             p2.setUnidadeMedida("UN");
 
             Produto p3 = new Produto();
             p3.setNome("Teclado Mecânico RGB");
             p3.setDescricao("Teclado mecânico com iluminação RGB customizável");
             p3.setPreco(new BigDecimal("350.00"));
-            p3.setQuantidadeEstoque(0);
+            p3.setQuantidadeEstoque(90);
             p3.setUnidadeMedida("UN");
 
-            produtos = produtoRepository.saveAll(Arrays.asList(p1, p2, p3));
+            Produto p4 = new Produto();
+            p4.setNome("Monitor Ultrawide 34\"");
+            p4.setDescricao("Monitor ultrawide de 34 polegadas para produtividade e jogos");
+            p4.setPreco(new BigDecimal("2800.00"));
+            p4.setQuantidadeEstoque(45);
+            p4.setUnidadeMedida("UN");
+
+            Produto p5 = new Produto();
+            p5.setNome("SSD NVMe 1TB");
+            p5.setDescricao("SSD NVMe de 1TB para alta velocidade de leitura e escrita");
+            p5.setPreco(new BigDecimal("450.00"));
+            p5.setQuantidadeEstoque(200);
+            p5.setUnidadeMedida("UN");
+
+            produtos = produtoRepository.saveAll(Arrays.asList(p1, p2, p3, p4, p5));
             System.out.println("Created sample products.");
         }
 
