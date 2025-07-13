@@ -95,7 +95,7 @@ export default function ProdutosPage() {
     const payload: ProdutoFormData = {
       ...values,
       preco: Number(values.preco),
-      quantidadeEstoque: Number(values.quantidadeEstoque),
+      quantidadeEstoque: 0,
     };
 
     try {
@@ -155,26 +155,25 @@ export default function ProdutosPage() {
         <Form.Item
           name="preco"
           label="Preço (R$)"
-          rules={[{ required: true, message: 'Por favor, insira o preço!' }, { type: 'number', min: 0, message: 'O preço deve ser um número positivo!'}] }
-          getValueFromEvent={(event) => {
-            const value = event.target.value;
-            // Remove non-numeric characters except comma and period for initial input flexibility
-            const numericValue = value.replace(/[^0-9.,]/g, '');
-            // Replace comma with period for consistency before parsing
-            return numericValue.replace(',', '.');
-          }}
-          getValueProps={(value) => ({
-            value: typeof value === 'number' ? String(value).replace('.', ',') : value,
-          })}
+          rules={[
+            { required: true, message: 'Por favor, insira o preço!' },
+            { 
+              validator: (_, value) => {
+                if (!value || value <= 0) {
+                  return Promise.reject('O preço deve ser um número positivo!');
+                }
+                return Promise.resolve();
+              }
+            }
+          ]}
         >
-          <InputNumber min={0} step={0.01} style={{ width: '100%' }} precision={2} decimalSeparator="," />
-        </Form.Item>
-        <Form.Item
-          name="quantidadeEstoque"
-          label="Quantidade em Estoque"
-          rules={[{ required: true, message: 'Por favor, insira a quantidade!' }, { type: 'number', min: 0, message: 'A quantidade deve ser um número positivo!'}]}
-        >
-          <InputNumber min={0} style={{ width: '100%' }} />
+          <InputNumber 
+            min={0} 
+            step={0.01} 
+            style={{ width: '100%' }} 
+            precision={2} 
+            placeholder="0.00"
+          />
         </Form.Item>
         <Form.Item name="unidadeMedida" label="Unidade de Medida" initialValue="un">
           <Select>

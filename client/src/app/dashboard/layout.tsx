@@ -52,7 +52,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
   
   const menuItems: MenuItem[] = [
-    getItem(<Link href="/dashboard">Visão Geral</Link>, '/dashboard', <PieChartOutlined />),
+    getItem(<Link href="/dashboard">Dashboard</Link>, '/dashboard', <PieChartOutlined />),
     getItem('Cadastros', 'sub1', <AppstoreOutlined />, [
       getItem(<Link href="/dashboard/produtos">Produtos</Link>, '/dashboard/produtos', <ShopOutlined />),
       getItem(<Link href="/dashboard/fornecedores">Fornecedores</Link>, '/dashboard/fornecedores', <SolutionOutlined />),
@@ -122,8 +122,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
             {children}
           </div>
         </Content>
-        <Footer style={{ textAlign: 'center', flexShrink: 0 }}> {/* MODIFIED: Prevent footer from shrinking */}
-          Gestor de Estoque ©{new Date().getFullYear()} Criado com Ant Design e Next.js
+        <Footer style={{ textAlign: 'center', flexShrink: 0 }}>
+          Gestock - Gestor de Estoque ©{new Date().getFullYear()} Por renercrisostomo
         </Footer>
       </Layout>
     </Layout>

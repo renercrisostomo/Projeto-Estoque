@@ -4,45 +4,26 @@ import { useEffect, useState } from 'react';
 import { Button, Card, Spin, Alert } from 'antd';
 import { useTitle } from '@/contexts/TitleContext';
 import { GoogleGenAI } from '@google/genai';
-
-// Mock data - In a real application, this would be fetched from your API
-const fetchDashboardData = async () => {
-  return {
-    totalProducts: 150,
-    totalStockValue: 125500.75,
-    lowStockItems: 12,
-    monthlyEntries: 58,
-    monthlyExits: 45,
-    topStockedProducts: [
-      { name: 'Notebook Gamer XYZ', quantity: 75 },
-      { name: 'Mouse Sem Fio Ergonômico', quantity: 120 },
-      { name: 'Teclado Mecânico RGB', quantity: 90 },
-      { name: 'Monitor Ultrawide 34"', quantity: 45 },
-      { name: 'SSD NVMe 1TB', quantity: 200 },
-    ],
-  };
-};
+import { dashboardService, DashboardData } from '@/services/dashboardService';
 
 export default function RelatoriosPage() {
   const { setTitle } = useTitle();
   const [report, setReport] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [dashboardData, setDashboardData] = useState<{
-    totalProducts: number;
-    totalStockValue: number;
-    lowStockItems: number;
-    monthlyEntries: number;
-    monthlyExits: number;
-    topStockedProducts: { name: string; quantity: number }[];
-  } | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
 
   useEffect(() => {
     setTitle('Relatórios Gerados por IA');
     const loadData = async () => {
-        const data = await fetchDashboardData();
+      try {
+        const data = await dashboardService.getDashboardData();
         setDashboardData(data);
-    }
+      } catch (error) {
+        console.error('Erro ao carregar dados do dashboard:', error);
+        setError('Falha ao carregar dados do dashboard.');
+      }
+    };
     loadData();
   }, [setTitle]);
 

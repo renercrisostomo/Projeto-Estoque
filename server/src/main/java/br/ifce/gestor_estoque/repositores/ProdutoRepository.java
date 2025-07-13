@@ -4,9 +4,11 @@ import br.ifce.gestor_estoque.domain.estoque.Produto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
-    // Spring Data JPA will automatically provide methods like findAll(), findById(), save(), deleteById(), etc.
-    // You can add custom query methods here if needed, for example:
-    // List<Produto> findByNome(String nome);
+    // Métodos para dashboard
+    long countByQuantidadeEstoqueLessThanEqual(int quantidade);
+    List<Produto> findTop5ByOrderByQuantidadeEstoqueDesc();
 }
